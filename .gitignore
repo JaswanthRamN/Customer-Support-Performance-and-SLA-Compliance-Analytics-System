@@ -1,0 +1,41 @@
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Local credentials and settings
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Raw and generated data stay local; synthetic sample data may be tracked
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Database backups, logs, and temporary files
+*.dump
+*.backup
+*.log
+*.tmp
+*.temp
+~$*
+
+# Power BI local caches (intentional portfolio reports may be tracked)
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+**/.pbi/unappliedChanges.json
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini

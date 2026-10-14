@@ -1,0 +1,3 @@
+# Foundation dependencies. Database connection packages will be added later.
+pandas>=2.2,<3.0
+numpy>=1.26,<3.0
