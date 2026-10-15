@@ -1,0 +1,51 @@
+{
+  "seed": 42,
+  "generation_start": "2026-01-01T00:00:00+00:00",
+  "analysis_as_of": "2026-07-01T00:00:00+00:00",
+  "python_version": "3.12.14",
+  "pandas_version": "3.0.1",
+  "numpy_version": "2.3.5",
+  "row_counts": {
+    "customers": 2500,
+    "teams": 3,
+    "agents": 30,
+    "tickets": 10000,
+    "assignment_history": 14024,
+    "customer_feedback": 3756
+  },
+  "sla_policy_hours": {
+    "Critical": {
+      "response": 1,
+      "resolution": 8
+    },
+    "High": {
+      "response": 4,
+      "resolution": 24
+    },
+    "Medium": {
+      "response": 8,
+      "resolution": 48
+    },
+    "Low": {
+      "response": 24,
+      "resolution": 72
+    }
+  },
+  "csv_sha256": {
+    "customers.csv": "5d97e2bc3f24a094e3c730fe965fecc9b3d035b91c668db0dc4b50708f70ca3b",
+    "teams.csv": "a9ea9548f8929857376c8c90165b78a82033fd5a2ab03a02ef6cfe9a185f47ee",
+    "agents.csv": "bc2ff9b4fed7143a4dcace14eb9bbab0ce46cd7abd0d85ecef633adc25501a4b",
+    "tickets.csv": "b1f4f4e6456b60909e9490b4fd6d0851f2da8cb4e92d1961ed53cd2e2b08e397",
+    "assignment_history.csv": "c61d85280cd565ac5e6c9a7b0b3ce9de8f3b2298463ce60f79825c88db363149",
+    "customer_feedback.csv": "771eab81d40f438fcdbd20ce0c1d79588655121127e942a27bcbbe6de70406a8"
+  },
+  "validation_checks": [
+    "Schemas, unique primary keys, required fields, UTC timestamps, snapshot bounds",
+    "All foreign keys resolve",
+    "Controlled categories and synthetic-only labels",
+    "Customer chronology, lifecycle ordering, reopened and unresolved semantics",
+    "Contiguous ownership intervals, valid teams/hire dates, final owners and reopen handoffs",
+    "Independent SLA target, deadline, and status reconciliation",
+    "Optional feedback uniqueness, customer ownership, rating bounds, and chronology"
+  ]
+}

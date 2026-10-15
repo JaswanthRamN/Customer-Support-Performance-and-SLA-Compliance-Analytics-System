@@ -1,0 +1,2 @@
+# Preserve generated CSV bytes and SHA-256 checksums across Windows checkouts.
+*.csv text eol=lf

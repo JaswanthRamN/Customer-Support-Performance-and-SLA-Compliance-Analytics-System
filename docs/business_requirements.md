@@ -27,7 +27,9 @@ No target improvement is promised until a baseline is measured.
 
 In scope: ticket volume, first response time, resolution time, first response and resolution SLA compliance, team summaries, unresolved ticket counts and age, and CSAT. Include trends and filters for creation date, team, priority, channel, and category.
 
-Out of scope for this beginner version: live API integrations, predictive modeling, automated alerts, business-hour calendars, holiday calendars, paused SLA clocks, ticket reopening history, agent-level rankings, and production deployment.
+The synthetic-data stage also includes customer, team, and agent dimensions, ticket assignment history, and at most one reopening cycle per ticket.
+
+Out of scope: live API integrations, predictive modeling, automated alerts, business-hour calendars, holiday calendars, paused SLA clocks, multiple reopening cycles, agent-level rankings, and production deployment.
 
 ## 4. Requirements
 
@@ -51,7 +53,8 @@ Out of scope for this beginner version: live API integrations, predictive modeli
 - Statuses are Open, In Progress, Pending, Resolved, and Closed. Pending tickets remain unresolved and their SLA clocks continue.
 - The first human reply is the first response; automated acknowledgments do not qualify.
 - SLA priority is the priority captured at creation and is fixed for this version.
-- Team is the assigned team at the snapshot. Historical transfers cannot be evaluated with this dataset.
+- Team is the assigned team at the snapshot. Assignment history supports ownership and transfer analysis; agents retain a fixed home team.
+- A ticket may reopen once. Keep its initial resolution and reopen timestamps, but use its final resolution for resolution-time and SLA metrics. Unresolved reopened tickets have a null final resolution. SLA clocks run from original creation without resetting or pausing.
 - Satisfaction is an optional score from 1 to 5, collected for resolved or closed tickets.
 - Trends and date filters use ticket creation date; backlog means unresolved tickets from that selected creation cohort at the snapshot. This version does not reconstruct historical daily backlog.
 
@@ -76,4 +79,4 @@ Before calling the project complete, reconcile Python, SQL, and dashboard totals
 
 ## 8. Limitations and interpretation
 
-Team comparisons may reflect workload complexity and staffing differences, not individual productivity. Missing feedback can bias satisfaction results. A snapshot cannot explain transfer history or reopened tickets. Synthetic findings demonstrate analytical methods rather than actual client performance.
+Team comparisons may reflect workload complexity and staffing differences, not individual productivity. Missing feedback can bias satisfaction results. Assignment history records ownership, not time actively working; the dataset does not include every status change or more than one reopen cycle. Synthetic findings demonstrate analytical methods rather than actual client performance.

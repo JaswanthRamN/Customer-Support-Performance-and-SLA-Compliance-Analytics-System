@@ -8,6 +8,10 @@ Calculate using full precision; round only displayed results. Express percentage
 
 Resolved tickets have status Resolved or Closed. Unresolved tickets have status Open, In Progress, or Pending. Resolution time ends at `resolved_at`, including when the current status is Closed.
 
+For the synthetic dataset, a reopened ticket retains `initial_resolved_at` and `reopened_at`; `resolved_at` represents final resolution and remains null until the reopened work is completed. Measure from original creation without resetting the SLA clock or subtracting the interval spent resolved. This is a simulation assumption rather than a universal support policy. Assignment ownership persists after closure and does not define unresolved status.
+
+The six-table dataset normalizes team and feedback fields: join `tickets.current_team_id` to `teams.team_id` for team labels, and left join tickets to `customer_feedback` on ticket_id for CSAT. Never count assignment-history rows as tickets. A ticket can have many assignments but at most one current feedback response.
+
 ## Core metrics
 
 | KPI | Definition and denominator | Business interpretation |
@@ -63,7 +67,7 @@ Response SLA compliance is `2 / (2 + 2) × 100 = 50%`. The assessable sample siz
 
 Group core KPIs by the snapshot `team`. Show ticket volume, resolved count, unresolved count, response and resolution averages/medians, SLA compliance with assessable counts, and CSAT with rating counts. Recalculate ratios from ticket-level counts within each team; never average team percentages to produce the total.
 
-Compare teams within similar priorities, categories, and channels. Current assignment may differ from the team that originally handled the ticket. Staffing and transfer history are unavailable, so do not interpret volume as per-agent productivity or use these metrics alone to rank employees.
+Compare teams within similar priorities, categories, and channels. Current assignment may differ from the team that originally handled the ticket; assignment history allows this distinction to be explored. Staffing capacity and active work time are unavailable, so do not interpret volume as per-agent productivity or use these metrics alone to rank employees.
 
 ## Backlog age and date filtering
 
