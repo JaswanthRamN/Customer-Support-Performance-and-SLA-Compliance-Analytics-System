@@ -39,11 +39,11 @@ data/
   processed/                # Cleaned local outputs; ignored by Git
   sample/synthetic/         # Six generated CSVs, metadata, and row-count summary
 notebooks/                  # Future exploratory analysis
-scripts/                    # Seeded generator and standalone validator
+scripts/                    # Seeded generator, validator, and Pandas cleaner
 tests/                      # Data integrity, boundary, and reproducibility tests
 sql/                        # Future PostgreSQL schema and analysis queries
 powerbi/                    # Future Power BI report and supporting assets
-reports/                    # Future findings and exported dashboard images
+reports/                    # Data-quality report; future findings and dashboard images
 requirements.txt            # Python dependencies
 .gitignore
 README.md
@@ -51,9 +51,9 @@ README.md
 
 The empty folders contain `.gitkeep` files so the structure can be tracked by Git.
 
-## Current stage: reproducible synthetic data
+## Current stage: synthetic data and quality checks
 
-The business documentation and a validated 10,000-ticket synthetic dataset are ready. Six related CSVs cover customers, teams, agents, tickets, assignment history, and optional customer feedback. No database schema, SQL analysis, or dashboard has been built yet. SLA thresholds are illustrative assumptions for a fictional support operation.
+The business documentation, a validated 10,000-ticket synthetic dataset, and a Pandas cleaning pipeline are ready. Six related CSVs cover customers, teams, agents, tickets, assignment history, and optional customer feedback. The cleaner creates separate accepted and quarantine outputs and a data-quality report. No database schema, SQL analysis, or dashboard has been built yet. SLA thresholds are illustrative assumptions for a fictional support operation.
 
 ## Local Python setup
 
@@ -87,11 +87,22 @@ Use the pinned dependencies and Python 3.12.14 to reproduce the delivered enviro
 
 The simulation includes weekdays and working-hour demand peaks, increasing monthly demand, channel-dependent response speed, category-dependent complexity, long-tail delays, overdue unresolved tickets, initial routing variation, reassignments, one optional reopen cycle, and optional satisfaction ratings. These patterns are invented assumptions, not statistically calibrated claims. See the [data-generation guide](docs/synthetic_data_guide.md) and [actual row-count summary](data/sample/synthetic/row_count_summary.md).
 
+## Clean the source files
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.clean_data
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+The generated CSVs in `data/sample/synthetic/` serve as immutable source inputs for this stage. The cleaner leaves them unchanged, writes six cleaned CSVs to `data/processed/cleaned/`, and writes six quarantine CSVs plus a normalization audit to `data/processed/quarantine/`. The existing ignore rules keep these processed outputs local. Reproduce them by running the command above.
+
+Read [the data-quality report](reports/data_quality_report.md) for accepted/rejected counts and [the cleaning guide](docs/data_cleaning.md) for rules, failure handling, and custom paths. Legitimate missing resolution timestamps stay blank for unresolved tickets. No bad record is silently discarded: every parsed source row is counted as accepted or quarantined with its original values, source record number, and reasons.
+
 ## Suggested learning milestones
 
 1. Review the requirements, data fields, and KPI rules. Explain what business decision each KPI supports.
 2. Generate and inspect the synthetic dataset; explain its relationships and assumptions.
-3. Review validation tests and explore workload, delays, and missing feedback with Pandas.
+3. Run the cleaner, review the quality report and tests, then explore workload, delays, and missing feedback with Pandas.
 4. Create PostgreSQL tables and load the cleaned data.
 5. Write SQL queries and reconcile their results against Python calculations.
 6. Build a Power BI dashboard with summary, SLA, team, backlog, and satisfaction views.
