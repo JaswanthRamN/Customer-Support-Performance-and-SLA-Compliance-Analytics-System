@@ -1,3 +1,4 @@
-# Tested versions for reproducible synthetic CSV generation (Python 3.11+).
+# Tested versions for synthetic data, cleaning, and EDA (Python 3.11+).
 pandas==3.0.1
 numpy==2.3.5
+matplotlib==3.11.2

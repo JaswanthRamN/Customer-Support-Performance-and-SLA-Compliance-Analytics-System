@@ -31,8 +31,14 @@ The six-table dataset normalizes team and feedback fields: join `tickets.current
 | Average CSAT | Sum of non-null csat_score / number of rated resolved tickets | Average reported satisfaction on a 1–5 scale |
 | Positive CSAT percentage | 100 × number of ratings 4 or 5 / number of rated resolved tickets | Share of respondents reporting positive satisfaction |
 | CSAT survey response rate | 100 × number of rated resolved tickets / number of resolved tickets | Coverage of customer feedback among completed tickets |
+| Reassigned ticket count | Distinct tickets with at least one `Reassignment` history row | Tickets that changed owners during ordinary work |
+| Reassignment event count | Count of `Reassignment` history rows | Total ordinary owner changes; can exceed reassigned-ticket count |
+| Reopened ticket count | Count of tickets with `reopen_count = 1` | Tickets reopened after initial resolution |
+| Reopened unresolved count | Count with `reopen_count = 1` and null final resolved_at | Reopened work still outstanding at the snapshot |
 
 Response and resolution duration metrics exclude missing events. Display unanswered and unresolved counts beside them because completed-event averages alone can hide waiting customers. For the synthetic dataset, assume all resolved tickets were offered a survey; real data would require a survey invitation field for the response-rate denominator.
+
+The EDA report includes average **and median** durations and CSAT, along with sample sizes. Averages can be pulled upward by the deliberately long-tailed simulation. Do not interpret an average–median gap as a real service benchmark. `Reopened` handoffs in assignment history are excluded from ordinary reassignment counts; report them separately through ticket reopening fields.
 
 ## SLA classification
 

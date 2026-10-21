@@ -1,0 +1,5 @@
+backlog_age_bucket,tickets
+Under 24h,67
+24–<48h,40
+48–<72h,10
+72h+,1071

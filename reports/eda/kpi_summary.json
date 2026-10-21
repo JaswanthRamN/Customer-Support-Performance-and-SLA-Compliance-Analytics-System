@@ -1,0 +1,51 @@
+{
+  "snapshot": "2026-07-01T00:00:00+00:00",
+  "creation_start": "2026-01-01T00:51:47+00:00",
+  "creation_end": "2026-06-30T23:58:32+00:00",
+  "tickets": 10000,
+  "responded": 9791,
+  "unanswered": 209,
+  "resolved": 8812,
+  "unresolved": 1188,
+  "unresolved_pct": 11.88,
+  "response_hours_mean": 7.0294635663137335,
+  "response_hours_median": 3.0413888888888887,
+  "resolution_hours_mean": 57.72154382281736,
+  "resolution_hours_median": 33.51680555555556,
+  "sla": {
+    "response": {
+      "met": 8029,
+      "breached": 1957,
+      "pending": 14,
+      "assessable": 9986,
+      "compliance_pct": 80.40256358902464
+    },
+    "resolution": {
+      "met": 5310,
+      "breached": 4584,
+      "pending": 106,
+      "assessable": 9894,
+      "compliance_pct": 53.668890236506975
+    },
+    "overall": {
+      "met": 4391,
+      "breached": 5516,
+      "pending": 93,
+      "assessable": 9907,
+      "compliance_pct": 44.322196426768954
+    }
+  },
+  "backlog_age_hours_mean": 1796.7371226150392,
+  "backlog_age_hours_median": 1628.53625,
+  "overdue_unresolved": 1082,
+  "reassigned_tickets": 2612,
+  "reassignment_events": 3099,
+  "reopened_tickets": 925,
+  "reopened_unresolved": 131,
+  "rated": 3756,
+  "unrated_resolved": 5056,
+  "csat_mean": 3.8682108626198084,
+  "csat_median": 4.0,
+  "positive_csat_pct": 66.93290734824281,
+  "feedback_coverage_pct": 42.62369496141625
+}
