@@ -30,6 +30,8 @@ Planned flow: synthetic ticket data → Python validation and cleaning → Postg
 ## Project structure
 
 ```text
+config/
+  sla_policy.json           # Illustrative priority targets in exact minutes
 docs/
   business_requirements.md   # Business goals, scope, and acceptance criteria
   data_dictionary.md        # Source fields, types, and validation rules
@@ -39,7 +41,7 @@ data/
   processed/                # Cleaned local outputs; ignored by Git
   sample/synthetic/         # Six generated CSVs, metadata, and row-count summary
 notebooks/                  # Future exploratory analysis
-scripts/                    # Generator, validator, cleaner, and EDA script
+scripts/                    # SLA calculations, generator, validator, cleaner, loader, and EDA
 tests/                      # Data integrity, boundary, and reproducibility tests
 sql/                        # PostgreSQL schema, validation, and analysis queries
 powerbi/                    # Future Power BI report and supporting assets
@@ -53,7 +55,7 @@ The empty folders contain `.gitkeep` files so the structure can be tracked by Gi
 
 ## Current stage: PostgreSQL schema and analysis queries
 
-The business documentation, validated 10,000-ticket synthetic dataset, Pandas cleaning pipeline, EDA, PostgreSQL schema, loader, and analysis queries are ready. The loader has passed local CSV preflight and automated tests. A live database import awaits a configured PostgreSQL instance. No Power BI dashboard has been built yet. SLA thresholds are illustrative assumptions for a fictional support operation.
+The business documentation, validated 10,000-ticket synthetic dataset, Pandas cleaning pipeline, EDA, PostgreSQL schema, loader, and analysis queries are ready. The loader has passed local CSV preflight and automated tests. A live database import awaits a configured PostgreSQL instance. No Power BI dashboard has been built yet. SLA targets are illustrative elapsed-calendar-time assumptions for this fictional support operation, not universal standards.
 
 ## Local Python setup
 

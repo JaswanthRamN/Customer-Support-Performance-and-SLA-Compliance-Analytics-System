@@ -7,8 +7,9 @@ from pathlib import Path
 import pandas as pd
 
 from scripts.generate_synthetic_data import (
-    DEFAULT_OUTPUT, SNAPSHOT, generate_data, overall_status, sla_status, write_dataset,
+    DEFAULT_OUTPUT, SNAPSHOT, generate_data, overall_status, write_dataset,
 )
+from scripts.sla import POLICIES, deadline_at, elapsed_hours, sla_status, unresolved_age_hours
 from scripts.validate_synthetic_data import load_data, validate_data, validate_directory
 
 
@@ -42,6 +43,33 @@ class SyntheticDataTests(unittest.TestCase):
         self.assertEqual(overall_status("Met", "Pending"), "Pending")
         self.assertEqual(overall_status("Met", "Met"), "Met")
 
+    def test_each_priority_policy_and_calculations(self):
+        created = pd.Timestamp("2026-06-30T00:00:00Z")
+        expected = {
+            "Critical": (15, 240), "High": (60, 480),
+            "Medium": (240, 1440), "Low": (480, 4320),
+        }
+        self.assertEqual(POLICIES, expected)
+        for priority, (response_minutes, resolution_minutes) in expected.items():
+            with self.subTest(priority=priority):
+                response_deadline = deadline_at(created, response_minutes)
+                resolution_deadline = deadline_at(created, resolution_minutes)
+                self.assertEqual(response_deadline, created + pd.Timedelta(minutes=response_minutes))
+                self.assertEqual(resolution_deadline, created + pd.Timedelta(minutes=resolution_minutes))
+                self.assertEqual(sla_status(response_deadline, response_deadline, SNAPSHOT), "Met")
+                self.assertEqual(sla_status(response_deadline + pd.Timedelta(seconds=1), response_deadline, SNAPSHOT), "Breached")
+                self.assertEqual(sla_status(resolution_deadline, resolution_deadline, SNAPSHOT), "Met")
+                self.assertEqual(sla_status(resolution_deadline + pd.Timedelta(seconds=1), resolution_deadline, SNAPSHOT), "Breached")
+                self.assertEqual(sla_status(pd.NaT, response_deadline,
+                                            response_deadline - pd.Timedelta(seconds=1)), "Pending")
+                self.assertEqual(sla_status(pd.NaT, response_deadline, response_deadline), "Pending")
+                self.assertEqual(sla_status(pd.NaT, response_deadline, response_deadline + pd.Timedelta(seconds=1)), "Breached")
+                self.assertEqual(elapsed_hours(created, response_deadline), response_minutes / 60)
+                self.assertEqual(elapsed_hours(created, pd.NaT), None)
+                self.assertEqual(unresolved_age_hours(created, pd.NaT, SNAPSHOT),
+                                 elapsed_hours(created, SNAPSHOT))
+                self.assertIsNone(unresolved_age_hours(created, resolution_deadline, SNAPSHOT))
+
     def test_csv_round_trip_and_identical_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:
             paths = [Path(temporary) / "first", Path(temporary) / "second"]
@@ -70,7 +98,7 @@ class SyntheticDataTests(unittest.TestCase):
             ("tickets", "customer_id", "MISSING"),
             ("tickets", "created_at", SNAPSHOT + pd.Timedelta(days=1)),
             ("tickets", "status", "Unknown"),
-            ("tickets", "response_target_hours", 999),
+            ("tickets", "response_target_minutes", 999),
             ("tickets", "response_sla_status", "Wrong"),
             ("tickets", "reopen_count", 2),
             ("assignment_history", "team_id", "TM99"),

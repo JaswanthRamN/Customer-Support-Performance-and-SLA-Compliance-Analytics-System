@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from scripts.generate_synthetic_data import ROOT, TABLES
 from scripts.load_postgres import LOAD_ORDER, copy_table, db_config, load_database, preflight
+from scripts.sla import POLICIES
 
 
 class FakeCursor:
@@ -88,11 +89,16 @@ class FakeConnection:
 
 
 class PostgresLoaderTests(unittest.TestCase):
+    def test_database_policy_seed_matches_shared_configuration(self):
+        schema = (ROOT / "sql" / "schema.sql").read_text(encoding="utf-8")
+        for priority, (response_minutes, resolution_minutes) in POLICIES.items():
+            self.assertIn(f"('{priority}', {response_minutes}, {resolution_minutes},", schema)
+
     def test_preflight_matches_cleaned_csvs_and_metadata(self):
         result = preflight()
         self.assertFalse(result["database_loaded"])
         self.assertEqual(result["expected_row_counts"]["tickets"], 10_000)
-        self.assertEqual(result["expected_row_counts"]["assignment_history"], 14_024)
+        self.assertEqual(result["expected_row_counts"]["assignment_history"], 14_035)
         self.assertEqual(len(result["python_validation_checks"]), 7)
 
     def test_missing_configuration_fails_without_a_connection(self):

@@ -82,7 +82,7 @@ class CleaningTests(unittest.TestCase):
     def test_invalid_types_categories_timestamps_and_ids_are_quarantined(self):
         mutations = [
             ("tickets", "priority", "Urgent"), ("tickets", "reopen_count", "1.5"),
-            ("tickets", "response_target_hours", "infinity"), ("tickets", "created_at", "not a date"),
+            ("tickets", "response_target_minutes", "infinity"), ("tickets", "created_at", "not a date"),
             ("tickets", "created_at", "2026-01-01T12:00:00"),
             ("tickets", "created_at", "2027-01-01T00:00:00Z"),
             ("tickets", "ticket_id", ""), ("customers", "segment", "NA"),
@@ -222,7 +222,7 @@ class CleaningTests(unittest.TestCase):
         cleaned, rejected, _, report = clean_frames(raw, SNAPSHOT, schemas)
         self.assertEqual(len(cleaned["tickets"]), 10_000)
         self.assertEqual(report["total_rejected"], 0)
-        self.assertEqual(report["unresolved_tickets_with_null_resolution"], 1188)
+        self.assertEqual(report["unresolved_tickets_with_null_resolution"], 1136)
         self.check_balance(cleaned, rejected, report)
 
 

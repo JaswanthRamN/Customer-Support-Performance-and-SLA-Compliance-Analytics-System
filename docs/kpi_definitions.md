@@ -42,7 +42,7 @@ The EDA report includes average **and median** durations and CSAT, along with sa
 
 ## SLA classification
 
-For each commitment separately, let `deadline = created_at + target_hours`, `event_at` be its first response or resolution timestamp, and `snapshot = analysis_as_of`.
+For each commitment separately, let `deadline = created_at + target_minutes`, `event_at` be its first response or final resolution timestamp, and `snapshot = analysis_as_of`. The targets are illustrative project assumptions using elapsed calendar time: Critical 15 minutes/4 hours, High 1 hour/8 hours, Medium 4 hours/24 hours, and Low 8 hours/72 hours for response/resolution. They are not universal standards or contractual commitments.
 
 | Condition | Classification |
 | --- | --- |
@@ -57,17 +57,17 @@ Overall SLA status is Breached if either commitment is Breached; Met if both are
 
 ## Worked response SLA example
 
-Five High-priority tickets have a 4-hour response target:
+Five High-priority tickets have a 1-hour response target:
 
 | Ticket | Situation at snapshot | Response SLA |
 | --- | --- | --- |
-| A | Responded after 2 hours | Met |
-| B | Responded after exactly 4 hours | Met |
-| C | Responded after 5 hours | Breached |
-| D | No response; age is 6 hours | Breached |
-| E | No response; age is 3 hours | Pending |
+| A | Responded after 30 minutes | Met |
+| B | Responded after exactly 1 hour | Met |
+| C | Responded after 75 minutes | Breached |
+| D | No response; age is 2 hours | Breached |
+| E | No response; age is 45 minutes | Pending |
 
-Response SLA compliance is `2 / (2 + 2) × 100 = 50%`. The assessable sample size is 4 and the pending count is 1. Mean first response time is `(2 + 4 + 5) / 3 = 3.67 hours`; it covers the three answered tickets only.
+Response SLA compliance is `2 / (2 + 2) × 100 = 50%`. The assessable sample size is 4 and the pending count is 1. Mean first response time is `(0.5 + 1 + 1.25) / 3 = 0.92 hours`; it covers the three answered tickets only.
 
 ## Team performance
 

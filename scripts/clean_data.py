@@ -16,7 +16,7 @@ from scripts.validate_synthetic_data import OPTIONAL, SCHEMAS, load_data, valida
 DEFAULT_CLEAN = ROOT / "data" / "processed" / "cleaned"
 DEFAULT_QUARANTINE = ROOT / "data" / "processed" / "quarantine"
 DEFAULT_REPORT = ROOT / "reports" / "data_quality_report.json"
-INTEGER_COLUMNS = {"reopen_count", "response_target_hours", "resolution_target_hours", "csat_score"}
+INTEGER_COLUMNS = {"reopen_count", "response_target_minutes", "resolution_target_minutes", "csat_score"}
 CATEGORIES = {
     ("customers", "segment"): ["Individual", "Small Business", "Enterprise"],
     ("customers", "region"): ["Region A", "Region B", "Region C", "Region D"],
@@ -163,8 +163,8 @@ def clean_frames(raw, snapshot, schema_issues=None):
 
     for event, prefix, policy_index in [("first_response_at", "response", 0), ("resolved_at", "resolution", 1)]:
         targets = tickets.priority.map({key: value[policy_index] for key, value in POLICIES.items()})
-        deadlines = (tickets.created_at + pd.to_timedelta(targets.fillna(0), unit="h")).where(targets.notna())
-        mark("tickets", tickets[f"{prefix}_target_hours"].ne(targets), f"{prefix}_policy_mismatch")
+        deadlines = (tickets.created_at + pd.to_timedelta(targets.fillna(0), unit="m")).where(targets.notna())
+        mark("tickets", tickets[f"{prefix}_target_minutes"].ne(targets), f"{prefix}_policy_mismatch")
         mark("tickets", tickets[f"{prefix}_deadline"].ne(deadlines), f"{prefix}_deadline_mismatch")
         expected = np.where(tickets[event].notna(), np.where(tickets[event].le(deadlines), "Met", "Breached"),
                             np.where(deadlines.lt(snapshot), "Breached", "Pending"))

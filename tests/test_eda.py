@@ -51,6 +51,13 @@ class EDATests(unittest.TestCase):
             self.assertEqual(item["assessable"] + item["pending"], len(tickets))
         overdue = tickets.resolved_at.isna() & tickets.resolution_sla_status.eq("Breached")
         self.assertEqual(self.metrics["overdue_unresolved"], int(overdue.sum()))
+        self.assertTrue(self.ticket_grain.loc[tickets.resolved_at.notna(), "backlog_age_hours"].isna().all())
+        unresolved = tickets.resolved_at.isna()
+        expected_age = (self.snapshot - tickets.loc[unresolved, "created_at"]).dt.total_seconds() / 3600
+        pd.testing.assert_series_equal(
+            self.ticket_grain.loc[unresolved, "backlog_age_hours"].reset_index(drop=True),
+            expected_age.reset_index(drop=True), check_names=False,
+        )
 
     def test_reassignment_and_reopen_counts(self):
         history = self.data["assignment_history"]

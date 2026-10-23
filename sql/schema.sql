@@ -2,6 +2,27 @@
 -- create a schema and tables. Re-running this file leaves existing rows intact.
 CREATE SCHEMA IF NOT EXISTS support_analytics;
 
+CREATE TABLE IF NOT EXISTS support_analytics.sla_policies (
+    priority TEXT PRIMARY KEY CHECK (priority IN ('Critical', 'High', 'Medium', 'Low')),
+    response_target_minutes INTEGER NOT NULL CHECK (response_target_minutes > 0),
+    resolution_target_minutes INTEGER NOT NULL CHECK (resolution_target_minutes > 0),
+    assumption_note TEXT NOT NULL,
+    CONSTRAINT sla_policy_values_unique
+        UNIQUE (priority, response_target_minutes, resolution_target_minutes)
+);
+
+INSERT INTO support_analytics.sla_policies
+    (priority, response_target_minutes, resolution_target_minutes, assumption_note)
+VALUES
+    ('Critical', 15, 240, 'Illustrative project assumption; elapsed calendar time'),
+    ('High', 60, 480, 'Illustrative project assumption; elapsed calendar time'),
+    ('Medium', 240, 1440, 'Illustrative project assumption; elapsed calendar time'),
+    ('Low', 480, 4320, 'Illustrative project assumption; elapsed calendar time')
+ON CONFLICT (priority) DO UPDATE SET
+    response_target_minutes = EXCLUDED.response_target_minutes,
+    resolution_target_minutes = EXCLUDED.resolution_target_minutes,
+    assumption_note = EXCLUDED.assumption_note;
+
 CREATE TABLE IF NOT EXISTS support_analytics.customers (
     customer_id TEXT PRIMARY KEY CHECK (customer_id ~ '^CU[0-9]+$'),
     customer_label TEXT NOT NULL CHECK (customer_label ~ '^Synthetic Customer [0-9]+$'),
@@ -46,8 +67,8 @@ CREATE TABLE IF NOT EXISTS support_analytics.tickets (
     closed_at TIMESTAMPTZ,
     current_agent_id TEXT NOT NULL,
     current_team_id TEXT NOT NULL REFERENCES support_analytics.teams(team_id),
-    response_target_hours SMALLINT NOT NULL CHECK (response_target_hours > 0),
-    resolution_target_hours SMALLINT NOT NULL CHECK (resolution_target_hours > 0),
+    response_target_minutes INTEGER NOT NULL CHECK (response_target_minutes > 0),
+    resolution_target_minutes INTEGER NOT NULL CHECK (resolution_target_minutes > 0),
     response_deadline TIMESTAMPTZ NOT NULL,
     resolution_deadline TIMESTAMPTZ NOT NULL,
     response_sla_status TEXT NOT NULL CHECK (response_sla_status IN ('Met', 'Breached', 'Pending')),
@@ -56,15 +77,13 @@ CREATE TABLE IF NOT EXISTS support_analytics.tickets (
     CONSTRAINT tickets_agent_team_fk FOREIGN KEY (current_agent_id, current_team_id)
         REFERENCES support_analytics.agents(agent_id, team_id),
     CONSTRAINT tickets_id_customer_unique UNIQUE (ticket_id, customer_id),
-    CONSTRAINT tickets_policy_match CHECK (
-        (priority = 'Critical' AND response_target_hours = 1 AND resolution_target_hours = 8) OR
-        (priority = 'High' AND response_target_hours = 4 AND resolution_target_hours = 24) OR
-        (priority = 'Medium' AND response_target_hours = 8 AND resolution_target_hours = 48) OR
-        (priority = 'Low' AND response_target_hours = 24 AND resolution_target_hours = 72)
-    ),
+    CONSTRAINT tickets_policy_fk
+        FOREIGN KEY (priority, response_target_minutes, resolution_target_minutes)
+        REFERENCES support_analytics.sla_policies
+            (priority, response_target_minutes, resolution_target_minutes),
     CONSTRAINT tickets_deadlines_match CHECK (
-        response_deadline = created_at + make_interval(hours => response_target_hours) AND
-        resolution_deadline = created_at + make_interval(hours => resolution_target_hours)
+        response_deadline = created_at + make_interval(mins => response_target_minutes) AND
+        resolution_deadline = created_at + make_interval(mins => resolution_target_minutes)
     ),
     CONSTRAINT tickets_status_events_match CHECK (
         (status = 'Open') = (first_response_at IS NULL) AND

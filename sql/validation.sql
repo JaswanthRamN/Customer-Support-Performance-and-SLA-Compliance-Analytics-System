@@ -17,6 +17,17 @@ SELECT
     (SELECT COUNT(*) FROM support_analytics.tickets) AS tickets,
     (SELECT COUNT(*) FROM support_analytics.assignment_history) AS assignment_history,
     (SELECT COUNT(*) FROM support_analytics.customer_feedback) AS customer_feedback,
+    (SELECT COUNT(*) FROM (
+         (SELECT priority, response_target_minutes, resolution_target_minutes
+          FROM support_analytics.sla_policies
+          EXCEPT VALUES ('Critical', 15, 240), ('High', 60, 480),
+                        ('Medium', 240, 1440), ('Low', 480, 4320))
+         UNION ALL
+         (VALUES ('Critical', 15, 240), ('High', 60, 480),
+                 ('Medium', 240, 1440), ('Low', 480, 4320)
+          EXCEPT SELECT priority, response_target_minutes, resolution_target_minutes
+                 FROM support_analytics.sla_policies)
+     ) policy_difference) AS invalid_sla_policy,
     (SELECT COUNT(*) FROM support_analytics.tickets t
      JOIN support_analytics.customers c ON c.customer_id = t.customer_id
      WHERE c.joined_at > t.created_at) AS invalid_customer_chronology,

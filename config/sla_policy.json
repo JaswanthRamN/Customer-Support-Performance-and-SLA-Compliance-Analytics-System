@@ -1,0 +1,9 @@
+{
+  "policy_basis": "Illustrative project assumptions using elapsed calendar time; not universal or contractual standards.",
+  "priorities": {
+    "Critical": {"response_minutes": 15, "resolution_minutes": 240},
+    "High": {"response_minutes": 60, "resolution_minutes": 480},
+    "Medium": {"response_minutes": 240, "resolution_minutes": 1440},
+    "Low": {"response_minutes": 480, "resolution_minutes": 4320}
+  }
+}

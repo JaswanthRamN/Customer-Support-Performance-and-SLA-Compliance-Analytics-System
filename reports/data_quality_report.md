@@ -8,11 +8,11 @@ Snapshot: 2026-07-01T00:00:00+00:00
 | teams | 3 | 3 | 0 |
 | agents | 30 | 30 | 0 |
 | tickets | 10,000 | 10,000 | 0 |
-| assignment_history | 14,024 | 14,024 | 0 |
-| customer_feedback | 3,756 | 3,756 | 0 |
-| **Total** | **30,313** | **30,313** | **0** |
+| assignment_history | 14,035 | 14,035 | 0 |
+| customer_feedback | 3,758 | 3,758 | 0 |
+| **Total** | **30,326** | **30,326** | **0** |
 
-Unresolved tickets retaining null resolution: 1,188.
+Unresolved tickets retaining null resolution: 1,136.
 Normalization changes: 0.
 Ready for analysis: True. Source CSVs unchanged: True.
 Source checksum manifest matches: True. Source row counts match: True.

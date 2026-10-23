@@ -62,12 +62,12 @@ Out of scope: live API integrations, predictive modeling, automated alerts, busi
 
 These are project assumptions, not contractual or industry-standard commitments.
 
-| Priority | First response target (hours) | Resolution target (hours) |
+| Priority | First response target | Resolution target |
 | --- | ---: | ---: |
-| Critical | 1 | 8 |
-| High | 4 | 24 |
-| Medium | 8 | 48 |
-| Low | 24 | 72 |
+| Critical | 15 minutes | 4 hours |
+| High | 1 hour | 8 hours |
+| Medium | 4 hours | 24 hours |
+| Low | 8 hours | 72 hours |
 
 An event exactly at the target meets the SLA. An unfinished event exactly at its deadline remains pending; it becomes breached only after the deadline.
 

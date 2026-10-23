@@ -13,7 +13,7 @@ All records are synthetic. The default snapshot is **2026-07-01 00:00:00 UTC**, 
 | assignment_history.csv | An uninterrupted ownership interval | assignment_id | ticket_id → tickets; agent_id → agents; team_id → teams |
 | customer_feedback.csv | An optional response after final resolution | feedback_id | ticket_id → tickets (unique); customer_id → customers |
 
-Do not join tickets directly to assignment history and then count rows as tickets: that inflates ticket volume. Aggregate history to ticket grain first, or use distinct ticket IDs. Join tickets to feedback with a left join to preserve unrated tickets. There is no separate SLA-policy CSV; the fixed policy is stored in the generator, metadata, and ticket target columns.
+Do not join tickets directly to assignment history and then count rows as tickets: that inflates ticket volume. Aggregate history to ticket grain first, or use distinct ticket IDs. Join tickets to feedback with a left join to preserve unrated tickets. There is no separate SLA-policy CSV; the illustrative policy is stored in `config/sla_policy.json`, dataset metadata, ticket target columns, and the PostgreSQL `sla_policies` table.
 
 ## customers.csv
 
@@ -70,10 +70,10 @@ One row per ticket; priority is fixed at creation. Required unless explicitly nu
 | closed_at | TIMESTAMPTZ, nullable | Administrative closure after final resolution; exists only for Closed tickets |
 | current_agent_id | TEXT | Agent in final ownership interval, including completed tickets |
 | current_team_id | TEXT | Current agent's home team; join teams for team_name |
-| response_target_hours | INTEGER | Priority-specific calendar-hour target: 1, 4, 8, 24 |
-| resolution_target_hours | INTEGER | Priority-specific calendar-hour target: 8, 24, 48, 72 |
-| response_deadline | TIMESTAMPTZ | created_at plus response_target_hours; may be after snapshot |
-| resolution_deadline | TIMESTAMPTZ | created_at plus resolution_target_hours; may be after snapshot |
+| response_target_minutes | INTEGER | Priority-specific calendar-time target: 15, 60, 240, 480 minutes |
+| resolution_target_minutes | INTEGER | Priority-specific calendar-time target: 240, 480, 1,440, 4,320 minutes |
+| response_deadline | TIMESTAMPTZ | created_at plus response_target_minutes; may be after snapshot |
+| resolution_deadline | TIMESTAMPTZ | created_at plus resolution_target_minutes; may be after snapshot |
 | response_sla_status | TEXT | Met, Breached, Pending, using first_response_at |
 | resolution_sla_status | TEXT | Met, Breached, Pending, using final resolved_at |
 | overall_sla_status | TEXT | Breached if either commitment breached; Met if both met; otherwise Pending |

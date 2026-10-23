@@ -1,11 +1,12 @@
 # PostgreSQL schema, load, and analysis
 
-This stage loads the six **synthetic, cleaned** CSVs into the `support_analytics` schema. The fixed dataset snapshot is `2026-07-01 00:00:00 UTC`. Start with [data cleaning](data_cleaning.md) if `data/processed/cleaned/` is absent. The local CSVs are ignored by Git; the generator and cleaner reproduce them.
+This stage loads the six **synthetic, cleaned** CSVs into the `support_analytics` schema and stores the illustrative priority targets in `sla_policies`. The fixed dataset snapshot is `2026-07-01 00:00:00 UTC`. Start with [data cleaning](data_cleaning.md) if `data/processed/cleaned/` is absent. The local CSVs are ignored by Git; the generator and cleaner reproduce them.
 
 ## Table relationships and grain
 
 | Table | Grain | Main relationships |
 | --- | --- | --- |
+| `sla_policies` | One illustrative priority policy | Referenced by ticket priority and exact minute targets |
 | `customers` | One fictional customer | Parent of `tickets` |
 | `teams` | One support team | Parent of `agents`; referenced by current ticket ownership |
 | `agents` | One fictional agent | Home team references `teams` |
@@ -13,7 +14,7 @@ This stage loads the six **synthetic, cleaned** CSVs into the `support_analytics
 | `assignment_history` | One ownership interval | Ticket and assigned agent/team |
 | `customer_feedback` | At most one rating per ticket | Ticket and the same ticket customer |
 
-[The schema](../sql/schema.sql) uses text IDs to preserve CSV identifiers, `TIMESTAMPTZ` for UTC events, `SMALLINT` for targets and ratings, primary/foreign keys, category and lifecycle checks, and a unique partial index allowing at most one current assignment per ticket. Composite foreign keys require an agent to belong to the recorded team and feedback to belong to the ticket's customer. Indexes support creation-date volume, team/status filters, unresolved backlog, SLA breakdowns, and assignment lookups. Some cross-row rules, such as continuous assignment intervals and feedback occurring after final resolution, require [post-load validation](../sql/validation.sql). Schema creation and load happen in one transaction.
+[The schema](../sql/schema.sql) uses text IDs to preserve CSV identifiers, `TIMESTAMPTZ` for UTC events, integer minutes for exact targets, primary/foreign keys, category and lifecycle checks, and a unique partial index allowing at most one current assignment per ticket. The policy table is seeded from the same assumptions as `config/sla_policy.json`: Critical 15/240, High 60/480, Medium 240/1,440, and Low 480/4,320 response/resolution minutes. These are project assumptions, not universal standards. Composite foreign keys require each ticket's priority and targets to match the policy, an agent to belong to the recorded team, and feedback to belong to the ticket's customer. Indexes support creation-date volume, team/status filters, unresolved backlog, SLA breakdowns, and assignment lookups. Some cross-row rules, such as continuous assignment intervals and feedback occurring after final resolution, require [post-load validation](../sql/validation.sql). Schema creation and load happen in one transaction.
 
 ## Configure and load
 
@@ -41,7 +42,7 @@ From the repository root:
 
 The loader refuses a nonempty target by default. To replace only these six tables after reviewing the target database, run `-m scripts.load_postgres --replace`; this truncates their rows inside the same transaction and reloads them. The loader does not drop the schema. `--input`, `--quality-report`, and `--report` allow custom paths.
 
-Expected accepted counts for the default seed-42 dataset: customers **2,500**, teams **3**, agents **30**, tickets **10,000**, assignment history **14,024**, feedback **3,756**. All post-load relationship anomaly counts should be **0**. A preflight report with `database_loaded: false` proves only local CSV validation; it is not evidence of a live database load.
+Expected accepted counts for the default seed-42 dataset: customers **2,500**, teams **3**, agents **30**, tickets **10,000**, assignment history **14,035**, feedback **3,758**. All post-load relationship anomaly counts should be **0**. A preflight report with `database_loaded: false` proves only local CSV validation; it is not evidence of a live database load.
 
 ## Analysis queries
 

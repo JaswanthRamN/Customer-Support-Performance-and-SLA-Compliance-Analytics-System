@@ -8,13 +8,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from scripts.generate_synthetic_data import DEFAULT_OUTPUT, POLICIES, TABLES
+from scripts.generate_synthetic_data import DEFAULT_OUTPUT, TABLES
+from scripts.sla import POLICIES
 
 SCHEMAS = {
     "customers": "customer_id customer_label segment region joined_at",
     "teams": "team_id team_name specialization",
     "agents": "agent_id agent_label team_id hired_at experience_level",
-    "tickets": "ticket_id customer_id priority category channel status created_at first_response_at initial_resolved_at reopened_at reopen_count resolved_at closed_at current_agent_id current_team_id response_target_hours resolution_target_hours response_deadline resolution_deadline response_sla_status resolution_sla_status overall_sla_status",
+    "tickets": "ticket_id customer_id priority category channel status created_at first_response_at initial_resolved_at reopened_at reopen_count resolved_at closed_at current_agent_id current_team_id response_target_minutes resolution_target_minutes response_deadline resolution_deadline response_sla_status resolution_sla_status overall_sla_status",
     "assignment_history": "assignment_id ticket_id agent_id team_id assigned_at unassigned_at assignment_reason",
     "customer_feedback": "feedback_id ticket_id customer_id submitted_at csat_score",
 }
@@ -147,8 +148,8 @@ def validate_data(data, snapshot):
 
     for event, prefix, policy_index in [("first_response_at", "response", 0), ("resolved_at", "resolution", 1)]:
         targets = tickets.priority.map({k: v[policy_index] for k, v in POLICIES.items()})
-        require(tickets[f"{prefix}_target_hours"].eq(targets).all(), f"{prefix}: policy mismatch")
-        deadlines = tickets.created_at + pd.to_timedelta(targets, unit="h")
+        require(tickets[f"{prefix}_target_minutes"].eq(targets).all(), f"{prefix}: policy mismatch")
+        deadlines = tickets.created_at + pd.to_timedelta(targets, unit="m")
         require(tickets[f"{prefix}_deadline"].eq(deadlines).all(), f"{prefix}: deadline mismatch")
         expected = np.where(tickets[event].notna(), np.where(tickets[event].le(deadlines), "Met", "Breached"),
                             np.where(deadlines.lt(snapshot), "Breached", "Pending"))

@@ -9,19 +9,13 @@ import platform
 import numpy as np
 import pandas as pd
 
+from scripts.sla import POLICIES, deadline_at, sla_status
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "data" / "sample" / "synthetic"
 SNAPSHOT = pd.Timestamp("2026-07-01T00:00:00Z")
 START = pd.Timestamp("2026-01-01T00:00:00Z")
-POLICIES = {"Critical": (1, 8), "High": (4, 24), "Medium": (8, 48), "Low": (24, 72)}
 TABLES = ("customers", "teams", "agents", "tickets", "assignment_history", "customer_feedback")
-
-
-def sla_status(event, deadline, snapshot):
-    """An event at the deadline meets SLA; an absent event at it is pending."""
-    if pd.notna(event):
-        return "Met" if event <= deadline else "Breached"
-    return "Breached" if snapshot > deadline else "Pending"
 
 
 def overall_status(response, resolution):
@@ -77,12 +71,12 @@ def generate_data(ticket_count=10_000, seed=42):
         category = str(rng.choice(["Account", "Technical", "Billing", "General"], p=[.25, .35, .25, .15]))
         priority = str(rng.choice(list(POLICIES), p=[.06, .22, .47, .25]))
         channel = str(rng.choice(["Email", "Chat", "Phone", "Web"], p=[.4, .25, .15, .2]))
-        response_target, resolution_target = POLICIES[priority]
+        response_target_minutes, resolution_target_minutes = POLICIES[priority]
         complexity = {"Account": .85, "Technical": 1.45, "Billing": 1.1, "General": .7}[category]
         channel_factor = {"Email": 1.2, "Chat": .55, "Phone": .3, "Web": 1.05}[channel]
         segment_factor = .75 if customer.segment == "Enterprise" else 1.0
-        response_delay = delay(response_target * rng.lognormal(-.7, .95) * channel_factor * segment_factor)
-        resolution_delay = delay(resolution_target * rng.lognormal(-.45, .95) * complexity)
+        response_delay = delay((response_target_minutes / 60) * rng.lognormal(-.7, .95) * channel_factor * segment_factor)
+        resolution_delay = delay((resolution_target_minutes / 60) * rng.lognormal(-.45, .95) * complexity)
         response_candidate = created + response_delay
         # A small persistent queue creates old unanswered and unresolved cases.
         first_response = response_candidate if response_candidate <= SNAPSHOT and rng.random() >= .018 else pd.NaT
@@ -141,8 +135,8 @@ def generate_data(ticket_count=10_000, seed=42):
                 "assignment_reason": reason,
             })
 
-        response_deadline = created + pd.Timedelta(hours=response_target)
-        resolution_deadline = created + pd.Timedelta(hours=resolution_target)
+        response_deadline = deadline_at(created, response_target_minutes)
+        resolution_deadline = deadline_at(created, resolution_target_minutes)
         response_sla = sla_status(first_response, response_deadline, SNAPSHOT)
         resolution_sla = sla_status(resolved, resolution_deadline, SNAPSHOT)
         ticket_rows.append({
@@ -152,7 +146,8 @@ def generate_data(ticket_count=10_000, seed=42):
             "initial_resolved_at": initial_resolution, "reopened_at": reopened,
             "reopen_count": int(pd.notna(reopened)), "resolved_at": resolved, "closed_at": closed,
             "current_agent_id": events[-1][1], "current_team_id": agent_team[events[-1][1]],
-            "response_target_hours": response_target, "resolution_target_hours": resolution_target,
+            "response_target_minutes": response_target_minutes,
+            "resolution_target_minutes": resolution_target_minutes,
             "response_deadline": response_deadline, "resolution_deadline": resolution_deadline,
             "response_sla_status": response_sla, "resolution_sla_status": resolution_sla,
             "overall_sla_status": overall_status(response_sla, resolution_sla),
@@ -200,7 +195,7 @@ def write_dataset(data, output, seed):
         "seed": seed, "generation_start": START.isoformat(), "analysis_as_of": SNAPSHOT.isoformat(),
         "python_version": platform.python_version(), "pandas_version": pd.__version__, "numpy_version": np.__version__,
         "row_counts": {name: len(data[name]) for name in TABLES},
-        "sla_policy_hours": {k: {"response": v[0], "resolution": v[1]} for k, v in POLICIES.items()},
+        "sla_policy_minutes": {k: {"response": v[0], "resolution": v[1]} for k, v in POLICIES.items()},
         "csv_sha256": hashes, "validation_checks": checks,
     }
     (output / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
