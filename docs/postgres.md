@@ -38,11 +38,11 @@ From the repository root:
 .\.venv\Scripts\python.exe -m scripts.load_postgres
 ```
 
-`--check-only` needs no database. It verifies the cleaned files' exact checksums and headers against the data-quality report, expected row counts, data types, timestamps, and relationships, then writes `reports/postgres_preflight.json`. A real load first repeats that preflight, creates the schema, and copies in dependency order: **customers → teams → agents → tickets → assignment_history → customer_feedback**. It compares database row counts with accepted CSV counts and requires every post-load anomaly count to be zero. On success it writes `reports/postgres_load_report.json` with counts and validation results. A failure rolls back all schema/data changes from that run.
+`--check-only` needs no database. It verifies the cleaned files' exact checksums and headers against the data-quality report, expected row counts, data types, timestamps, and relationships, then writes `reports/postgres_preflight.json`. A real load first repeats that preflight, creates the schema, and copies in dependency order: **customers → teams → agents → tickets → assignment_history → customer_feedback**. It then installs the reporting views, compares database row counts with accepted CSV counts, and requires every post-load anomaly count to be zero. On success it writes `reports/postgres_load_report.json` with counts and validation results. A failure rolls back all schema, data, and view changes from that run.
 
 The loader refuses a nonempty target by default. To replace only these six tables after reviewing the target database, run `-m scripts.load_postgres --replace`; this truncates their rows inside the same transaction and reloads them. The loader does not drop the schema. `--input`, `--quality-report`, and `--report` allow custom paths.
 
-Expected accepted counts for the default seed-42 dataset: customers **2,500**, teams **3**, agents **30**, tickets **10,000**, assignment history **14,035**, feedback **3,758**. All post-load relationship anomaly counts should be **0**. A preflight report with `database_loaded: false` proves only local CSV validation; it is not evidence of a live database load.
+Expected accepted counts for the default seed-42 dataset: customers **2,500**, teams **3**, agents **30**, tickets **10,000**, assignment history **14,035**, feedback **3,758**. All post-load relationship and reporting-grain anomaly counts should be **0**. The validator requires `vw_ticket_metrics` to contain exactly one row per ticket and every controlled dimension partition to contain exactly the ticket total. A preflight report with `database_loaded: false` proves only local CSV validation; it is not evidence of a live database load.
 
 ## Analysis queries
 
@@ -58,6 +58,8 @@ Run the [query files](../sql/queries/) after a successful load with a PostgreSQL
 | [06_satisfaction.sql](../sql/queries/06_satisfaction.sql) | Rated count, mean/median CSAT, positive-rating share, and feedback coverage. Missing feedback is excluded from score averages, never treated as zero. |
 
 See [KPI definitions](kpi_definitions.md) for the business meaning and denominators. If you load a dataset with a different snapshot, change the literal in `05_backlog.sql` to that report's `analysis_as_of` timestamp.
+
+For reusable Power BI or SQL-client sources, use the [reporting views and reconciliation guide](reporting_views.md). The views separate ticket-grain current-snapshot metrics from assignment-grain historical ownership activity.
 
 ## Validation status in this workspace
 

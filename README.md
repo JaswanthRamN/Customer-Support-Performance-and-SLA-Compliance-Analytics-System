@@ -53,9 +53,9 @@ README.md
 
 The empty folders contain `.gitkeep` files so the structure can be tracked by Git.
 
-## Current stage: PostgreSQL schema and analysis queries
+## Current stage: PostgreSQL reporting layer
 
-The business documentation, validated 10,000-ticket synthetic dataset, Pandas cleaning pipeline, EDA, PostgreSQL schema, loader, and analysis queries are ready. The loader has passed local CSV preflight and automated tests. A live database import awaits a configured PostgreSQL instance. No Power BI dashboard has been built yet. SLA targets are illustrative elapsed-calendar-time assumptions for this fictional support operation, not universal standards.
+The business documentation, validated 10,000-ticket synthetic dataset, Pandas cleaning pipeline, EDA, PostgreSQL schema, loader, analysis queries, reporting views, and Python reconciliation baseline are ready. The loader has passed local CSV preflight and automated tests. A live database import and SQL-to-Python comparison await a configured PostgreSQL instance. No Power BI dashboard has been built yet. SLA targets are illustrative elapsed-calendar-time assumptions for this fictional support operation, not universal standards.
 
 ## Local Python setup
 
@@ -113,6 +113,8 @@ The script validates the cleaned six-table dataset and its accepted row counts b
 
 The report explains volume, service speed, SLA, backlog, reassignment, reopening, and ratings. Averages and medians use only tickets with the relevant event. Missing feedback is excluded from score calculations, while coverage uses all resolved tickets as the denominator. See [KPI definitions](docs/kpi_definitions.md) for the complete rules.
 
+Reusable [SQL reporting views](docs/reporting_views.md) provide SLA, service-time, backlog, reassignment, reopening, satisfaction, overdue-ticket, and assignment-history datasets. Summary views derive from one row per ticket and label team/agent as current snapshot ownership. An independent Pandas reconciliation command provides expected values and can compare them with a configured PostgreSQL database.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -143,3 +145,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Data dictionary](docs/data_dictionary.md)
 - [KPI definitions](docs/kpi_definitions.md)
 - [PostgreSQL schema, load, and queries](docs/postgres.md)
+- [SQL reporting views and Python reconciliation](docs/reporting_views.md)

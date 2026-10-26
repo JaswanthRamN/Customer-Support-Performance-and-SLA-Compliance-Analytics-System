@@ -1,0 +1,111 @@
+{
+  "python_baseline": {
+    "analysis_as_of": "2026-07-01T00:00:00+00:00",
+    "ticket_grain": {
+      "tickets": 10000,
+      "assignment_rows": 14035,
+      "ticket_ids_unique": true
+    },
+    "sla": {
+      "response": {
+        "met": 8013,
+        "breached": 1976,
+        "pending": 11,
+        "compliance_pct": 80.22
+      },
+      "resolution": {
+        "met": 5343,
+        "breached": 4603,
+        "pending": 54,
+        "compliance_pct": 53.72
+      },
+      "overall": {
+        "met": 4387,
+        "breached": 5569,
+        "pending": 44,
+        "compliance_pct": 44.06
+      }
+    },
+    "service_times": {
+      "answered_tickets": 9796,
+      "average_response_hours": 2.7,
+      "median_response_hours": 1.25,
+      "resolved_tickets": 8864,
+      "average_resolution_hours": 40.57,
+      "median_resolution_hours": 18.33
+    },
+    "backlog": {
+      "backlog_tickets": 1136,
+      "overdue_tickets": 1082,
+      "average_age_hours": 1874.71,
+      "median_age_hours": 1741.0
+    },
+    "reassignments": {
+      "reassigned_tickets": 2617,
+      "reassignment_events": 3104,
+      "reassigned_ticket_pct": 26.17
+    },
+    "reopened": {
+      "reopened_tickets": 931,
+      "reopened_unresolved_tickets": 128,
+      "reopened_ticket_pct": 9.31
+    },
+    "satisfaction": {
+      "resolved_tickets": 8864,
+      "rated_tickets": 3758,
+      "positive_ratings": 2515,
+      "average_csat": 3.87,
+      "median_csat": 4.0,
+      "positive_csat_pct": 66.92,
+      "feedback_coverage_pct": 42.4
+    },
+    "dimension_ticket_counts": {
+      "Priority": {
+        "Medium": 4701,
+        "Low": 2512,
+        "High": 2182,
+        "Critical": 605
+      },
+      "Current Team": {
+        "TM01": 3687,
+        "TM02": 3395,
+        "TM03": 2918
+      },
+      "Current Agent": {
+        "AG001": 386,
+        "AG002": 357,
+        "AG003": 374,
+        "AG004": 350,
+        "AG005": 391,
+        "AG006": 368,
+        "AG007": 337,
+        "AG008": 393,
+        "AG009": 363,
+        "AG010": 368,
+        "AG011": 350,
+        "AG012": 339,
+        "AG013": 371,
+        "AG014": 321,
+        "AG015": 319,
+        "AG016": 326,
+        "AG017": 336,
+        "AG018": 348,
+        "AG019": 328,
+        "AG020": 357,
+        "AG021": 278,
+        "AG022": 293,
+        "AG023": 288,
+        "AG024": 292,
+        "AG025": 277,
+        "AG026": 318,
+        "AG027": 292,
+        "AG028": 286,
+        "AG029": 288,
+        "AG030": 306
+      }
+    }
+  },
+  "database_compared": false,
+  "database_match": null,
+  "mismatches": []
+}

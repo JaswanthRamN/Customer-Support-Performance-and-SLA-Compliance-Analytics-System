@@ -31,6 +31,8 @@ class FakeCursor:
             self.connection.actions.append("lock")
         elif "CREATE SCHEMA" in statement:
             self.connection.actions.append("schema")
+        elif "CREATE OR REPLACE VIEW support_analytics.vw_ticket_metrics" in statement:
+            self.connection.actions.append("views")
         elif statement.startswith("SELECT COUNT(*) FROM"):
             for name in TABLES:
                 if statement.endswith(f'"{name}"'):
@@ -135,7 +137,7 @@ class PostgresLoaderTests(unittest.TestCase):
             result = load_database(connect=lambda **_: fake)
         self.assertTrue(result["database_loaded"])
         self.assertTrue(fake.committed)
-        self.assertEqual(fake.actions, ["lock", "schema", *LOAD_ORDER, "validate"])
+        self.assertEqual(fake.actions, ["lock", "schema", *LOAD_ORDER, "views", "validate"])
         self.assertEqual(result["database_row_counts"], result["expected_row_counts"])
 
     def test_nonempty_tables_refuse_implicit_replacement(self):
@@ -154,7 +156,7 @@ class PostgresLoaderTests(unittest.TestCase):
             result = load_database(replace=True, connect=lambda **_: fake)
         self.assertTrue(fake.committed)
         self.assertTrue(result["replaced_existing_rows"])
-        self.assertEqual(fake.actions, ["lock", "schema", "truncate", *LOAD_ORDER, "validate"])
+        self.assertEqual(fake.actions, ["lock", "schema", "truncate", *LOAD_ORDER, "views", "validate"])
 
     def test_relationship_anomaly_rolls_back(self):
         fake = FakeConnection(anomaly=1)

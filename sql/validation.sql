@@ -17,6 +17,19 @@ SELECT
     (SELECT COUNT(*) FROM support_analytics.tickets) AS tickets,
     (SELECT COUNT(*) FROM support_analytics.assignment_history) AS assignment_history,
     (SELECT COUNT(*) FROM support_analytics.customer_feedback) AS customer_feedback,
+    (SELECT ABS(COUNT(*) - (SELECT COUNT(*) FROM support_analytics.tickets)) +
+            (COUNT(*) - COUNT(DISTINCT ticket_id))
+     FROM support_analytics.vw_ticket_metrics) AS invalid_ticket_metrics_grain,
+    (SELECT COUNT(*)
+     FROM (VALUES ('Overall'), ('Priority'), ('Current Team'), ('Current Agent')) expected(dimension_type)
+     LEFT JOIN (
+         SELECT dimension_type, COUNT(*) AS rows_in_dimension
+         FROM support_analytics.vw_reporting_dimensions
+         GROUP BY dimension_type
+     ) observed USING (dimension_type)
+     WHERE COALESCE(observed.rows_in_dimension, 0) <>
+           (SELECT COUNT(*) FROM support_analytics.tickets)
+    ) AS invalid_reporting_dimension_counts,
     (SELECT COUNT(*) FROM (
          (SELECT priority, response_target_minutes, resolution_target_minutes
           FROM support_analytics.sla_policies

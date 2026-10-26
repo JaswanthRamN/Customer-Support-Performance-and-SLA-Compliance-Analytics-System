@@ -12,6 +12,8 @@ For the synthetic dataset, a reopened ticket retains `initial_resolved_at` and `
 
 The six-table dataset normalizes team and feedback fields: join `tickets.current_team_id` to `teams.team_id` for team labels, and left join tickets to `customer_feedback` on ticket_id for CSAT. Never count assignment-history rows as tickets. A ticket can have many assignments but at most one current feedback response.
 
+The SQL reporting layer uses `vw_ticket_metrics` as its one-row-per-ticket base. `Current Team` and `Current Agent` mean ownership at `analysis_as_of`; historical assignment reporting has assignment grain and must use distinct ticket IDs for ticket counts. Current backlog is the unresolved state at the fixed snapshot. Assignment history alone cannot reconstruct historical backlog because it does not contain every ticket status transition.
+
 ## Core metrics
 
 | KPI | Definition and denominator | Business interpretation |
@@ -35,6 +37,7 @@ The six-table dataset normalizes team and feedback fields: join `tickets.current
 | Reassignment event count | Count of `Reassignment` history rows | Total ordinary owner changes; can exceed reassigned-ticket count |
 | Reopened ticket count | Count of tickets with `reopen_count = 1` | Tickets reopened after initial resolution |
 | Reopened unresolved count | Count with `reopen_count = 1` and null final resolved_at | Reopened work still outstanding at the snapshot |
+| Reopened ticket rate | 100 × reopened ticket count / N | Share of tickets that reopened at least once |
 
 Response and resolution duration metrics exclude missing events. Display unanswered and unresolved counts beside them because completed-event averages alone can hide waiting customers. For the synthetic dataset, assume all resolved tickets were offered a survey; real data would require a survey invitation field for the response-rate denominator.
 

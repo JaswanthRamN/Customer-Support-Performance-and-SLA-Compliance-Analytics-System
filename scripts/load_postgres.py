@@ -17,6 +17,7 @@ from scripts.validate_synthetic_data import SCHEMAS, load_data, validate_data
 DEFAULT_INPUT = ROOT / "data" / "processed" / "cleaned"
 DEFAULT_QUALITY = ROOT / "reports" / "data_quality_report.json"
 SCHEMA_SQL = ROOT / "sql" / "schema.sql"
+REPORTING_VIEWS_SQL = ROOT / "sql" / "reporting_views.sql"
 VALIDATION_SQL = ROOT / "sql" / "validation.sql"
 SCHEMA = "support_analytics"
 LOAD_ORDER = ("customers", "teams", "agents", "tickets", "assignment_history", "customer_feedback")
@@ -107,6 +108,7 @@ def load_database(directory=DEFAULT_INPUT, quality_path=DEFAULT_QUALITY, replace
                 cursor.execute(sql.SQL("TRUNCATE TABLE {} ").format(tables))
             for name in LOAD_ORDER:
                 copy_table(cursor, name, Path(directory) / f"{name}.csv")
+            cursor.execute(REPORTING_VIEWS_SQL.read_text(encoding="utf-8"))
             cursor.execute(VALIDATION_SQL.read_text(encoding="utf-8"), (result["analysis_as_of"],))
             columns = [item.name for item in cursor.description]
             findings = dict(zip(columns, cursor.fetchone()))
