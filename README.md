@@ -44,7 +44,7 @@ notebooks/                  # Future exploratory analysis
 scripts/                    # SLA calculations, generator, validator, cleaner, loader, and EDA
 tests/                      # Data integrity, boundary, and reproducibility tests
 sql/                        # PostgreSQL schema, validation, and analysis queries
-powerbi/                    # Future Power BI report and supporting assets
+powerbi/                    # Power Query and DAX model source assets; no PBIX yet
 reports/eda/                # EDA report, KPI summary, tables, and charts
 requirements.txt            # Python dependencies
 .gitignore
@@ -115,6 +115,8 @@ The report explains volume, service speed, SLA, backlog, reassignment, reopening
 
 Reusable [SQL reporting views](docs/reporting_views.md) provide SLA, service-time, backlog, reassignment, reopening, satisfaction, overdue-ticket, and assignment-history datasets. Summary views derive from one row per ticket and label team/agent as current snapshot ownership. An independent Pandas reconciliation command provides expected values and can compare them with a configured PostgreSQL database.
 
+The [Power BI model guide](docs/power_bi_model.md) includes PostgreSQL Power Query M transformations, role-playing team/agent/date dimensions, safe relationships, DAX KPI measures, null and UTC handling, and a Desktop validation checklist. These are source assets and instructions; the repository does not currently contain a PBIX file.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -146,3 +148,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [KPI definitions](docs/kpi_definitions.md)
 - [PostgreSQL schema, load, and queries](docs/postgres.md)
 - [SQL reporting views and Python reconciliation](docs/reporting_views.md)
+- [Power BI model and Power Query guide](docs/power_bi_model.md)

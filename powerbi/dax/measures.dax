@@ -1,0 +1,50 @@
+-- Create a dedicated table named Measures, then add these measures there.
+-- All ticket metrics use FactTickets, which has exactly one row per ticket.
+
+Ticket Count = DISTINCTCOUNT(FactTickets[ticket_id])
+
+Answered Tickets = CALCULATE([Ticket Count], FactTickets[first_response_at] <> BLANK())
+Unanswered Tickets = [Ticket Count] - [Answered Tickets]
+Resolved Tickets = CALCULATE([Ticket Count], FactTickets[resolved_at] <> BLANK())
+Unresolved Tickets = CALCULATE([Ticket Count], FactTickets[is_unresolved] = TRUE())
+Unresolved % = DIVIDE([Unresolved Tickets], [Ticket Count])
+
+Average Response Hours = AVERAGE(FactTickets[response_hours])
+Median Response Hours = MEDIAN(FactTickets[response_hours])
+Average Resolution Hours = AVERAGE(FactTickets[resolution_hours])
+Median Resolution Hours = MEDIAN(FactTickets[resolution_hours])
+Average Unresolved Age Hours = CALCULATE(AVERAGE(FactTickets[unresolved_age_hours]), FactTickets[is_unresolved] = TRUE())
+Median Unresolved Age Hours = CALCULATE(MEDIAN(FactTickets[unresolved_age_hours]), FactTickets[is_unresolved] = TRUE())
+Overdue Tickets = CALCULATE([Ticket Count], FactTickets[is_overdue] = TRUE())
+
+Response SLA Met = CALCULATE([Ticket Count], FactTickets[response_sla_status] = "Met")
+Response SLA Breached = CALCULATE([Ticket Count], FactTickets[response_sla_status] = "Breached")
+Response SLA Pending = CALCULATE([Ticket Count], FactTickets[response_sla_status] = "Pending")
+Response SLA Compliance % = DIVIDE([Response SLA Met], [Response SLA Met] + [Response SLA Breached])
+
+Resolution SLA Met = CALCULATE([Ticket Count], FactTickets[resolution_sla_status] = "Met")
+Resolution SLA Breached = CALCULATE([Ticket Count], FactTickets[resolution_sla_status] = "Breached")
+Resolution SLA Pending = CALCULATE([Ticket Count], FactTickets[resolution_sla_status] = "Pending")
+Resolution SLA Compliance % = DIVIDE([Resolution SLA Met], [Resolution SLA Met] + [Resolution SLA Breached])
+
+Overall SLA Met = CALCULATE([Ticket Count], FactTickets[overall_sla_status] = "Met")
+Overall SLA Breached = CALCULATE([Ticket Count], FactTickets[overall_sla_status] = "Breached")
+Overall SLA Pending = CALCULATE([Ticket Count], FactTickets[overall_sla_status] = "Pending")
+Overall SLA Compliance % = DIVIDE([Overall SLA Met], [Overall SLA Met] + [Overall SLA Breached])
+
+Reassignment Events = CALCULATE(COUNTROWS(FactAssignmentHistory), FactAssignmentHistory[assignment_reason] = "Reassignment")
+Reassigned Tickets = CALCULATE(DISTINCTCOUNT(FactAssignmentHistory[ticket_id]), FactAssignmentHistory[assignment_reason] = "Reassignment")
+Reassigned Ticket % = DIVIDE([Reassigned Tickets], [Ticket Count])
+Historical Assigned Tickets = DISTINCTCOUNT(FactAssignmentHistory[ticket_id])
+Historical Reassignment % = DIVIDE([Reassigned Tickets], [Historical Assigned Tickets])
+
+Reopened Tickets = CALCULATE([Ticket Count], FactTickets[is_reopened] = TRUE())
+Reopened Ticket % = DIVIDE([Reopened Tickets], [Ticket Count])
+Reopened Unresolved Tickets = CALCULATE([Ticket Count], FactTickets[is_reopened] = TRUE(), FactTickets[is_unresolved] = TRUE())
+
+Feedback Responses = COUNTROWS(FactFeedback)
+Average CSAT = AVERAGE(FactFeedback[csat_score])
+Median CSAT = MEDIAN(FactFeedback[csat_score])
+Positive Feedback Responses = CALCULATE([Feedback Responses], FactFeedback[is_positive_csat] = TRUE())
+Positive CSAT % = DIVIDE([Positive Feedback Responses], [Feedback Responses])
+Feedback Coverage % = DIVIDE([Feedback Responses], [Resolved Tickets])
