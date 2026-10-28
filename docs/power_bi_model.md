@@ -125,3 +125,15 @@ Then validate filter behavior:
 7. Select a ticket with multiple assignment rows. `Ticket Count` must remain 1 while assignment row count can exceed 1.
 
 If any count differs, check relationship cardinality/direction, parameter values, source schema, refresh errors, and whether a fact table was merged into another query. The independent expected results are also recorded in `reports/reporting_reconciliation.json`.
+
+## Measure denominators and filter context
+
+The measures in `powerbi/dax/measures.dax` inherit the current report filter context: a priority, created-date, or current-team slicer narrows `FactTickets` before the measure is evaluated. `CALCULATE` adds the measure's condition (for example, `resolved_at` is not blank) while retaining compatible slicer filters. No measure removes filters with `ALL`, so totals respond naturally to report selections.
+
+`Total Tickets` uses a distinct ticket count as a defensive ticket-grain denominator. `Open Tickets` uses the business statuses Open, In Progress, and Pending. `Unresolved Backlog` instead uses a null final resolution timestamp; the two currently reconcile but are deliberately separate definitions. Response averages and medians include only answered tickets. Resolution averages and medians explicitly include only tickets with a final `resolved_at`, so unresolved tickets cannot enter completed-resolution statistics.
+
+First-response and resolution compliance divide Met by Met plus Breached. Pending tickets are excluded because their deadline outcome is not final at the snapshot. `DIVIDE` returns blank when the eligible denominator is zero. `SLA Breach Count` counts breached commitments, so one ticket can contribute two; `Tickets with Any SLA Breach` is the distinct-ticket alternative. Reopened tickets use the ticket-level reopen flag. Customer-rating measures evaluate only `FactFeedback`; absent feedback is no row and is never converted to zero. Positive CSAT uses ratings 4 or 5 divided by actual feedback responses.
+
+Ticket-side filters flow to assignment history and feedback through the documented single-direction relationships. Feedback-date filters do not flow backward to tickets, and historical team filters affect assignment measures rather than current ticket measures. This is intentional: combining these roles in one visual requires choosing measures whose grain matches the slicer.
+
+Run `sql/power_bi_reconciliation.sql` in PostgreSQL to compare the unfiltered headline cards with SQL. For sliced reconciliation, add the same predicate to the `support_analytics.tickets` CTE and, when reconciling feedback, filter feedback through the matching ticket IDs rather than joining assignment history. The query uses `NULLIF`, the SQL equivalent of a safe zero-denominator check, and keeps feedback and ticket calculations in separate CTEs to prevent row multiplication.

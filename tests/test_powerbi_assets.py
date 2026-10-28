@@ -44,6 +44,20 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertIn("DISTINCTCOUNT(FactAssignmentHistory[ticket_id])", dax)
         self.assertIn("DIVIDE([Response SLA Met]", dax)
         self.assertIn("AVERAGE(FactFeedback[csat_score])", dax)
+        self.assertIn("Total Tickets = DISTINCTCOUNT(FactTickets[ticket_id])", dax)
+        self.assertIn('FactTickets[status] IN { "Open", "In Progress", "Pending" }', dax)
+        self.assertIn("FactTickets[resolved_at] <> BLANK()", dax)
+        self.assertIn("DIVIDE([Response SLA Met], [Response SLA Eligible])", dax)
+        self.assertIn("DIVIDE([Resolution SLA Met], [Resolution SLA Eligible])", dax)
+        self.assertIn("Tickets with Any SLA Breach", dax)
+
+    def test_sql_reconciliation_is_ticket_grain_safe(self):
+        sql = (ROOT / "sql" / "power_bi_reconciliation.sql").read_text(encoding="utf-8")
+        self.assertIn("FROM support_analytics.tickets", sql)
+        self.assertIn("FROM support_analytics.customer_feedback", sql)
+        self.assertNotIn("assignment_history", sql)
+        self.assertIn("NULLIF", sql)
+        self.assertIn("resolved_at IS NOT NULL", sql)
 
 
 if __name__ == "__main__":
