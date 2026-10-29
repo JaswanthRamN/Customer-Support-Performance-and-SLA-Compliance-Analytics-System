@@ -117,6 +117,8 @@ Reusable [SQL reporting views](docs/reporting_views.md) provide SLA, service-tim
 
 The [Power BI model guide](docs/power_bi_model.md) includes PostgreSQL Power Query M transformations, role-playing team/agent/date dimensions, safe relationships, DAX KPI measures, null and UTC handling, and a Desktop validation checklist. These are source assets and instructions; the repository does not currently contain a PBIX file.
 
+The [executive dashboard build guide](docs/executive_power_bi_dashboard.md) maps KPI cards, trends, distributions, team comparison, and slicers to the model, with manual Power BI Desktop steps and SQL reconciliation targets.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -149,3 +151,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [PostgreSQL schema, load, and queries](docs/postgres.md)
 - [SQL reporting views and Python reconciliation](docs/reporting_views.md)
 - [Power BI model and Power Query guide](docs/power_bi_model.md)
+- [Executive Power BI dashboard build guide](docs/executive_power_bi_dashboard.md)

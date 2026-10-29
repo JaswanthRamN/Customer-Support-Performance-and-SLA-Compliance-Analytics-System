@@ -24,6 +24,8 @@ WITH ticket_metrics AS (
         COUNT(*) FILTER (WHERE response_sla_status = 'Breached') AS response_sla_breached,
         COUNT(*) FILTER (WHERE resolution_sla_status = 'Met') AS resolution_sla_met,
         COUNT(*) FILTER (WHERE resolution_sla_status = 'Breached') AS resolution_sla_breached,
+        COUNT(*) FILTER (WHERE overall_sla_status = 'Met') AS overall_sla_met,
+        COUNT(*) FILTER (WHERE overall_sla_status = 'Breached') AS overall_sla_breached,
         COUNT(*) FILTER (
             WHERE response_sla_status = 'Breached'
                OR resolution_sla_status = 'Breached'
@@ -57,6 +59,9 @@ SELECT
     ROUND(100.0 * t.resolution_sla_met /
         NULLIF(t.resolution_sla_met + t.resolution_sla_breached, 0), 2)
         AS resolution_sla_compliance_pct,
+    ROUND(100.0 * t.overall_sla_met /
+        NULLIF(t.overall_sla_met + t.overall_sla_breached, 0), 2)
+        AS overall_sla_compliance_pct,
     t.response_sla_breached + t.resolution_sla_breached AS sla_breach_count,
     t.tickets_with_any_sla_breach,
     t.reopened_tickets,

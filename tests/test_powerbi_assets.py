@@ -58,6 +58,19 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertNotIn("assignment_history", sql)
         self.assertIn("NULLIF", sql)
         self.assertIn("resolved_at IS NOT NULL", sql)
+        self.assertIn("overall_sla_compliance_pct", sql)
+
+    def test_executive_dashboard_guide_maps_required_visuals(self):
+        guide = (ROOT / "docs" / "executive_power_bi_dashboard.md").read_text(encoding="utf-8")
+        for required in [
+            "[Total Tickets]", "[Unresolved Backlog]", "[Overall SLA Compliance %]",
+            "[Average Response Hours]", "[Average Resolution Hours]", "[Customer Rating]",
+            "Ticket Volume Trend", "Tickets by Priority", "Tickets by Category",
+            "DimCurrentTeam[team_name]", "DimCreatedDate[Date]",
+        ]:
+            self.assertIn(required, guide)
+        self.assertIn("database_compared` is currently `false", guide)
+        self.assertIn("No `.pbix` file has been created", guide)
 
 
 if __name__ == "__main__":
