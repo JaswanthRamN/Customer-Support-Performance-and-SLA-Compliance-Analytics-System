@@ -39,6 +39,14 @@ let
         type nullable number),
     AddedIsOverdue = Table.AddColumn(AddedUnresolvedAge, "is_overdue", each
         [resolved_at] = null and [resolution_sla_status] = "Breached", type logical),
-    AddedIsReopened = Table.AddColumn(AddedIsOverdue, "is_reopened", each [reopen_count] > 0, type logical)
+    AddedIsReopened = Table.AddColumn(AddedIsOverdue, "is_reopened", each [reopen_count] > 0, type logical),
+    AnalysisAsOfUtc = DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(pAnalysisAsOfUtc, 0)),
+    AddedAnalysisAsOf = Table.AddColumn(AddedIsReopened, "analysis_as_of_utc", each AnalysisAsOfUtc, type datetime),
+    AddedResponseMinutesRemaining = Table.AddColumn(AddedAnalysisAsOf, "response_minutes_remaining_at_snapshot", each
+        if [first_response_at] <> null then null
+        else Duration.TotalMinutes([response_deadline] - AnalysisAsOfUtc), type nullable number),
+    AddedResolutionMinutesRemaining = Table.AddColumn(AddedResponseMinutesRemaining, "resolution_minutes_remaining_at_snapshot", each
+        if [resolved_at] <> null then null
+        else Duration.TotalMinutes([resolution_deadline] - AnalysisAsOfUtc), type nullable number)
 in
-    AddedIsReopened
+    AddedResolutionMinutesRemaining

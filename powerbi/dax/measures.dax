@@ -54,6 +54,117 @@ Resolution SLA Pending = CALCULATE([Ticket Count], FactTickets[resolution_sla_st
 Resolution SLA Eligible = [Resolution SLA Met] + [Resolution SLA Breached]
 Resolution SLA Compliance % = DIVIDE([Resolution SLA Met], [Resolution SLA Eligible])
 
+-- Completed-outcome compliance excludes commitments that are still open.
+Completed First-Response Eligible =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[first_response_at] <> BLANK(),
+    FactTickets[response_sla_status] IN { "Met", "Breached" }
+)
+Completed First-Response Met =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[first_response_at] <> BLANK(),
+    FactTickets[response_sla_status] = "Met"
+)
+Completed First-Response Breached =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[first_response_at] <> BLANK(),
+    FactTickets[response_sla_status] = "Breached"
+)
+Completed First-Response Compliance % =
+DIVIDE([Completed First-Response Met], [Completed First-Response Eligible])
+
+Completed Resolution Eligible =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] <> BLANK(),
+    FactTickets[resolution_sla_status] IN { "Met", "Breached" }
+)
+Completed Resolution Met =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] <> BLANK(),
+    FactTickets[resolution_sla_status] = "Met"
+)
+Completed Resolution Breached =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] <> BLANK(),
+    FactTickets[resolution_sla_status] = "Breached"
+)
+Completed Resolution Compliance % =
+DIVIDE([Completed Resolution Met], [Completed Resolution Eligible])
+
+-- Current-risk measures use the fixed Power Query analysis snapshot, not a volatile viewer clock.
+Current Overdue Unanswered Tickets =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[first_response_at] = BLANK(),
+    FactTickets[response_sla_status] = "Breached"
+)
+Current Overdue Unresolved Tickets =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] = BLANK(),
+    FactTickets[resolution_sla_status] = "Breached"
+)
+Current Overdue Any-Commitment Tickets =
+CALCULATE(
+    [Total Tickets],
+    FILTER(
+        FactTickets,
+        (ISBLANK(FactTickets[first_response_at]) && FactTickets[response_sla_status] = "Breached")
+            || (ISBLANK(FactTickets[resolved_at]) && FactTickets[resolution_sla_status] = "Breached")
+    )
+)
+Approaching First-Response Deadline Tickets =
+CALCULATE(
+    [Total Tickets],
+    FILTER(
+        FactTickets,
+        ISBLANK(FactTickets[first_response_at])
+            && FactTickets[response_sla_status] = "Pending"
+            && FactTickets[response_minutes_remaining_at_snapshot] > 0
+            && FactTickets[response_minutes_remaining_at_snapshot]
+                <= FactTickets[response_target_minutes] * 0.25
+    )
+)
+Approaching Resolution Deadline Tickets =
+CALCULATE(
+    [Total Tickets],
+    FILTER(
+        FactTickets,
+        ISBLANK(FactTickets[resolved_at])
+            && FactTickets[resolution_sla_status] = "Pending"
+            && FactTickets[resolution_minutes_remaining_at_snapshot] > 0
+            && FactTickets[resolution_minutes_remaining_at_snapshot]
+                <= FactTickets[resolution_target_minutes] * 0.25
+    )
+)
+Approaching Any Deadline Tickets =
+CALCULATE(
+    [Total Tickets],
+    FILTER(
+        FactTickets,
+        (
+            ISBLANK(FactTickets[first_response_at])
+                && FactTickets[response_sla_status] = "Pending"
+                && FactTickets[response_minutes_remaining_at_snapshot] > 0
+                && FactTickets[response_minutes_remaining_at_snapshot]
+                    <= FactTickets[response_target_minutes] * 0.25
+        )
+        || (
+            ISBLANK(FactTickets[resolved_at])
+                && FactTickets[resolution_sla_status] = "Pending"
+                && FactTickets[resolution_minutes_remaining_at_snapshot] > 0
+                && FactTickets[resolution_minutes_remaining_at_snapshot]
+                    <= FactTickets[resolution_target_minutes] * 0.25
+        )
+    )
+)
+
 SLA Breach Count = [Response SLA Breached] + [Resolution SLA Breached]
 Tickets with Any SLA Breach =
 CALCULATE(

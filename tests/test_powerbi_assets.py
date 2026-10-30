@@ -26,6 +26,9 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertIn("if [first_response_at] = null then null", query)
         self.assertIn("if [resolved_at] = null then null", query)
         self.assertIn("unresolved_age_hours", query)
+        self.assertIn("analysis_as_of_utc", query)
+        self.assertIn("response_minutes_remaining_at_snapshot", query)
+        self.assertIn("resolution_minutes_remaining_at_snapshot", query)
         function = (self.query_dir / "fnUtcDateTime.m").read_text(encoding="utf-8")
         self.assertIn("DateTimeZone.SwitchZone", function)
         self.assertIn("DateTimeZone.RemoveZone", function)
@@ -50,6 +53,11 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertIn("DIVIDE([Response SLA Met], [Response SLA Eligible])", dax)
         self.assertIn("DIVIDE([Resolution SLA Met], [Resolution SLA Eligible])", dax)
         self.assertIn("Tickets with Any SLA Breach", dax)
+        self.assertIn("Completed First-Response Compliance %", dax)
+        self.assertIn("Completed Resolution Compliance %", dax)
+        self.assertIn("Current Overdue Unresolved Tickets", dax)
+        self.assertIn("Approaching Any Deadline Tickets", dax)
+        self.assertNotIn("NOW()", dax)
 
     def test_sql_reconciliation_is_ticket_grain_safe(self):
         sql = (ROOT / "sql" / "power_bi_reconciliation.sql").read_text(encoding="utf-8")
@@ -71,6 +79,21 @@ class PowerBIAssetTests(unittest.TestCase):
             self.assertIn(required, guide)
         self.assertIn("database_compared` is currently `false", guide)
         self.assertIn("No `.pbix` file has been created", guide)
+
+    def test_sla_dashboard_assets_separate_populations(self):
+        guide = (ROOT / "docs" / "sla_power_bi_dashboard.md").read_text(encoding="utf-8")
+        sql = (ROOT / "sql" / "sla_dashboard_validation.sql").read_text(encoding="utf-8")
+        for phrase in [
+            "Completed first-response eligible", "Current overdue unresolved",
+            "Approaching deadline", "25%", "creation month", "not historical backlog",
+            "does not contain a `.pbix` file",
+        ]:
+            self.assertIn(phrase, guide)
+        self.assertIn("first_response_at IS NOT NULL", sql)
+        self.assertIn("resolved_at IS NULL", sql)
+        self.assertIn("response_target_minutes * 0.25", sql)
+        self.assertIn("resolution_target_minutes * 0.25", sql)
+        self.assertNotIn("assignment_history", sql)
 
 
 if __name__ == "__main__":

@@ -119,6 +119,8 @@ The [Power BI model guide](docs/power_bi_model.md) includes PostgreSQL Power Que
 
 The [executive dashboard build guide](docs/executive_power_bi_dashboard.md) maps KPI cards, trends, distributions, team comparison, and slicers to the model, with manual Power BI Desktop steps and SQL reconciliation targets.
 
+The [SLA dashboard guide](docs/sla_power_bi_dashboard.md) separates completed compliance from current overdue backlog, defines priority-relative approaching-deadline logic, and maps SLA visuals and tooltips to DAX and SQL validation.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -152,3 +154,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [SQL reporting views and Python reconciliation](docs/reporting_views.md)
 - [Power BI model and Power Query guide](docs/power_bi_model.md)
 - [Executive Power BI dashboard build guide](docs/executive_power_bi_dashboard.md)
+- [Power BI SLA dashboard guide](docs/sla_power_bi_dashboard.md)
