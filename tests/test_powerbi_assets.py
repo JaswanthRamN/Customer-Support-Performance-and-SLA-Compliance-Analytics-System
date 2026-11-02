@@ -68,6 +68,28 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertIn("resolved_at IS NOT NULL", sql)
         self.assertIn("overall_sla_compliance_pct", sql)
 
+    def test_team_dashboard_assets_keep_team_grains_separate(self):
+        guide = (ROOT / "docs" / "team_power_bi_dashboard.md").read_text(encoding="utf-8")
+        sql = (ROOT / "sql" / "team_dashboard_validation.sql").read_text(encoding="utf-8")
+        dax = (ROOT / "powerbi" / "dax" / "measures.dax").read_text(encoding="utf-8")
+        for phrase in [
+            "Current-owner ticket lens", "Historical-assignment lens",
+            "DimCurrentTeam[team_name]", "DimHistoricalTeam[team_name]",
+            "associations, not agent or team productivity scores",
+            "not a `.pbix` file",
+        ]:
+            self.assertIn(phrase, guide)
+        for measure in [
+            "Current-Owner Ticket Sample", "Current-Owner Reassigned Ticket %",
+            "Historical Assignment Intervals", "Historical Reassignment Event %",
+            "Customer Rating Sample",
+        ]:
+            self.assertIn(measure, dax)
+        self.assertIn("reassignment_by_ticket", sql)
+        self.assertIn("feedback_by_ticket", sql)
+        self.assertIn("GROUP BY ticket_id", sql)
+        self.assertIn("COUNT(DISTINCT h.ticket_id)", sql)
+
     def test_executive_dashboard_guide_maps_required_visuals(self):
         guide = (ROOT / "docs" / "executive_power_bi_dashboard.md").read_text(encoding="utf-8")
         for required in [

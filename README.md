@@ -121,6 +121,8 @@ The [executive dashboard build guide](docs/executive_power_bi_dashboard.md) maps
 
 The [SLA dashboard guide](docs/sla_power_bi_dashboard.md) separates completed compliance from current overdue backlog, defines priority-relative approaching-deadline logic, and maps SLA visuals and tooltips to DAX and SQL validation.
 
+The [team comparison dashboard guide](docs/team_power_bi_dashboard.md) separates current-owner ticket outcomes from historical assignment activity, exposes sample sizes, and validates duplicate-safe team metrics with SQL.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -155,3 +157,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Power BI model and Power Query guide](docs/power_bi_model.md)
 - [Executive Power BI dashboard build guide](docs/executive_power_bi_dashboard.md)
 - [Power BI SLA dashboard guide](docs/sla_power_bi_dashboard.md)
+- [Power BI team comparison dashboard guide](docs/team_power_bi_dashboard.md)

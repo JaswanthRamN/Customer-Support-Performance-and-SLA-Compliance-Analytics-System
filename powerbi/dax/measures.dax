@@ -187,6 +187,26 @@ Reassigned Ticket % = DIVIDE([Reassigned Tickets], [Ticket Count])
 Historical Assigned Tickets = DISTINCTCOUNT(FactAssignmentHistory[ticket_id])
 Historical Reassignment % = DIVIDE([Reassigned Tickets], [Historical Assigned Tickets])
 
+-- Use these aliases with DimCurrentTeam: the team is the ticket owner at the snapshot.
+Current-Owner Ticket Sample = [Total Tickets]
+Current-Owner Reassignment Events = [Reassignment Events]
+Current-Owner Reassigned Tickets = [Reassigned Tickets]
+Current-Owner Reassigned Ticket % = DIVIDE([Current-Owner Reassigned Tickets], [Current-Owner Ticket Sample])
+Current-Owner Reassignment Events per 100 Tickets =
+100 * DIVIDE([Current-Owner Reassignment Events], [Current-Owner Ticket Sample])
+
+-- Use these measures only with DimHistoricalTeam: the grain is an ownership interval.
+Historical Assignment Intervals = COUNTROWS(FactAssignmentHistory)
+Historical Reassignment Events =
+CALCULATE(
+    COUNTROWS(FactAssignmentHistory),
+    FactAssignmentHistory[assignment_reason] = "Reassignment"
+)
+Historical Reassignment Event % =
+DIVIDE([Historical Reassignment Events], [Historical Assignment Intervals])
+Historical Reassignment Events per 100 Intervals =
+100 * DIVIDE([Historical Reassignment Events], [Historical Assignment Intervals])
+
 Reopened Tickets = CALCULATE([Ticket Count], FactTickets[is_reopened] = TRUE())
 Reopened Ticket % = DIVIDE([Reopened Tickets], [Total Tickets])
 Reopened Unresolved Tickets = CALCULATE([Ticket Count], FactTickets[is_reopened] = TRUE(), FactTickets[is_unresolved] = TRUE())
@@ -199,3 +219,8 @@ Customer Rating = [Average CSAT]
 Positive Feedback Responses = CALCULATE([Feedback Responses], FactFeedback[is_positive_csat] = TRUE())
 Positive CSAT % = DIVIDE([Positive Feedback Responses], [Feedback Responses])
 Feedback Coverage % = DIVIDE([Feedback Responses], [Resolved Tickets])
+
+-- Sample-size aliases for current-owner team comparisons.
+Response Time Sample = [Answered Tickets]
+Resolution Time Sample = [Resolved Tickets]
+Customer Rating Sample = [Feedback Responses]
