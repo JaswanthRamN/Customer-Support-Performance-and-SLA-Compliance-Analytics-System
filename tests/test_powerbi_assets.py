@@ -29,6 +29,8 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertIn("analysis_as_of_utc", query)
         self.assertIn("response_minutes_remaining_at_snapshot", query)
         self.assertIn("resolution_minutes_remaining_at_snapshot", query)
+        self.assertIn("backlog_age_bucket", query)
+        self.assertIn("backlog_age_bucket_sort", query)
         function = (self.query_dir / "fnUtcDateTime.m").read_text(encoding="utf-8")
         self.assertIn("DateTimeZone.SwitchZone", function)
         self.assertIn("DateTimeZone.RemoveZone", function)
@@ -67,6 +69,26 @@ class PowerBIAssetTests(unittest.TestCase):
         self.assertIn("NULLIF", sql)
         self.assertIn("resolved_at IS NOT NULL", sql)
         self.assertIn("overall_sla_compliance_pct", sql)
+
+    def test_backlog_satisfaction_assets_keep_populations_separate(self):
+        guide = (ROOT / "docs" / "backlog_satisfaction_power_bi.md").read_text(encoding="utf-8")
+        sql = (ROOT / "sql" / "backlog_satisfaction_validation.sql").read_text(encoding="utf-8")
+        dax = (ROOT / "powerbi" / "dax" / "measures.dax").read_text(encoding="utf-8")
+        for phrase in [
+            "Unresolved Tickets", "Customer Satisfaction", "Missing feedback",
+            "ticket volume", "feedback volume", "backlog_age_bucket",
+            "does not contain a `.pbix` file",
+        ]:
+            self.assertIn(phrase, guide)
+        for measure in [
+            "High-Priority Backlog", "Unassigned Current Tickets",
+            "Rating 1 Responses", "Rating 5 Responses", "Negative CSAT %",
+        ]:
+            self.assertIn(measure, dax)
+        self.assertIn("feedback_by_ticket", sql)
+        self.assertIn("GROUP BY ticket_id", sql)
+        self.assertIn("feedback_volume", sql)
+        self.assertNotIn("assignment_history", sql)
 
     def test_team_dashboard_assets_keep_team_grains_separate(self):
         guide = (ROOT / "docs" / "team_power_bi_dashboard.md").read_text(encoding="utf-8")

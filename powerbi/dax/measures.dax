@@ -40,6 +40,26 @@ CALCULATE(
 Average Unresolved Age Hours = CALCULATE(AVERAGE(FactTickets[unresolved_age_hours]), FactTickets[is_unresolved] = TRUE())
 Median Unresolved Age Hours = CALCULATE(MEDIAN(FactTickets[unresolved_age_hours]), FactTickets[is_unresolved] = TRUE())
 Overdue Tickets = CALCULATE([Ticket Count], FactTickets[is_overdue] = TRUE())
+Overdue Backlog % = DIVIDE([Overdue Tickets], [Unresolved Backlog])
+High-Priority Backlog =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] = BLANK(),
+    FactTickets[priority] IN { "Critical", "High" }
+)
+High-Priority Overdue Backlog =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] = BLANK(),
+    FactTickets[resolution_sla_status] = "Breached",
+    FactTickets[priority] IN { "Critical", "High" }
+)
+Unassigned Current Tickets =
+CALCULATE(
+    [Total Tickets],
+    FactTickets[resolved_at] = BLANK(),
+    ISBLANK(FactTickets[current_agent_id])
+)
 
 Response SLA Met = CALCULATE([Ticket Count], FactTickets[response_sla_status] = "Met")
 Response SLA Breached = CALCULATE([Ticket Count], FactTickets[response_sla_status] = "Breached")
@@ -216,7 +236,16 @@ Rated Tickets = DISTINCTCOUNT(FactFeedback[ticket_id])
 Average CSAT = AVERAGE(FactFeedback[csat_score])
 Median CSAT = MEDIAN(FactFeedback[csat_score])
 Customer Rating = [Average CSAT]
+Rating 1 Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] = 1)
+Rating 2 Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] = 2)
+Rating 3 Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] = 3)
+Rating 4 Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] = 4)
+Rating 5 Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] = 5)
+Negative Feedback Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] <= 2)
+Neutral Feedback Responses = CALCULATE([Feedback Responses], FactFeedback[csat_score] = 3)
 Positive Feedback Responses = CALCULATE([Feedback Responses], FactFeedback[is_positive_csat] = TRUE())
+Negative CSAT % = DIVIDE([Negative Feedback Responses], [Feedback Responses])
+Neutral CSAT % = DIVIDE([Neutral Feedback Responses], [Feedback Responses])
 Positive CSAT % = DIVIDE([Positive Feedback Responses], [Feedback Responses])
 Feedback Coverage % = DIVIDE([Feedback Responses], [Resolved Tickets])
 

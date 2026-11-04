@@ -123,6 +123,8 @@ The [SLA dashboard guide](docs/sla_power_bi_dashboard.md) separates completed co
 
 The [team comparison dashboard guide](docs/team_power_bi_dashboard.md) separates current-owner ticket outcomes from historical assignment activity, exposes sample sizes, and validates duplicate-safe team metrics with SQL.
 
+The [backlog and satisfaction dashboard guide](docs/backlog_satisfaction_power_bi.md) defines aging buckets, overdue/high-priority/unassigned checks, rating distribution, satisfaction breakdowns, and separate ticket-versus-feedback populations.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -158,3 +160,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Executive Power BI dashboard build guide](docs/executive_power_bi_dashboard.md)
 - [Power BI SLA dashboard guide](docs/sla_power_bi_dashboard.md)
 - [Power BI team comparison dashboard guide](docs/team_power_bi_dashboard.md)
+- [Power BI backlog and customer satisfaction guide](docs/backlog_satisfaction_power_bi.md)

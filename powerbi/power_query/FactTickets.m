@@ -37,7 +37,23 @@ let
         if [resolved_at] <> null then null
         else Duration.TotalHours(DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(pAnalysisAsOfUtc, 0)) - [created_at]),
         type nullable number),
-    AddedIsOverdue = Table.AddColumn(AddedUnresolvedAge, "is_overdue", each
+    AddedBacklogAgeBucket = Table.AddColumn(AddedUnresolvedAge, "backlog_age_bucket", each
+        if [unresolved_age_hours] = null then null
+        else if [unresolved_age_hours] <= 24 then "0-24 hours"
+        else if [unresolved_age_hours] <= 72 then "25-72 hours"
+        else if [unresolved_age_hours] <= 168 then "4-7 days"
+        else if [unresolved_age_hours] <= 336 then "8-14 days"
+        else if [unresolved_age_hours] <= 720 then "15-30 days"
+        else "31+ days", type nullable text),
+    AddedBacklogAgeBucketSort = Table.AddColumn(AddedBacklogAgeBucket, "backlog_age_bucket_sort", each
+        if [unresolved_age_hours] = null then null
+        else if [unresolved_age_hours] <= 24 then 1
+        else if [unresolved_age_hours] <= 72 then 2
+        else if [unresolved_age_hours] <= 168 then 3
+        else if [unresolved_age_hours] <= 336 then 4
+        else if [unresolved_age_hours] <= 720 then 5
+        else 6, Int64.Type),
+    AddedIsOverdue = Table.AddColumn(AddedBacklogAgeBucketSort, "is_overdue", each
         [resolved_at] = null and [resolution_sla_status] = "Breached", type logical),
     AddedIsReopened = Table.AddColumn(AddedIsOverdue, "is_reopened", each [reopen_count] > 0, type logical),
     AnalysisAsOfUtc = DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(pAnalysisAsOfUtc, 0)),
