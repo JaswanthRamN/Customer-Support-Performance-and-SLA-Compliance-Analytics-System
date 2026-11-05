@@ -125,6 +125,8 @@ The [team comparison dashboard guide](docs/team_power_bi_dashboard.md) separates
 
 The [backlog and satisfaction dashboard guide](docs/backlog_satisfaction_power_bi.md) defines aging buckets, overdue/high-priority/unassigned checks, rating distribution, satisfaction breakdowns, and separate ticket-versus-feedback populations.
 
+The [FastAPI analytics API guide](docs/analytics_api.md) documents the modular read-only PostgreSQL API, validated filters, pagination, OpenAPI routes, safe errors, and tested scope.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -161,3 +163,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Power BI SLA dashboard guide](docs/sla_power_bi_dashboard.md)
 - [Power BI team comparison dashboard guide](docs/team_power_bi_dashboard.md)
 - [Power BI backlog and customer satisfaction guide](docs/backlog_satisfaction_power_bi.md)
+- [FastAPI analytics API guide](docs/analytics_api.md)
