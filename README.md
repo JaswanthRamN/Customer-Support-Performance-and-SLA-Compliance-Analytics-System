@@ -127,6 +127,8 @@ The [backlog and satisfaction dashboard guide](docs/backlog_satisfaction_power_b
 
 The [FastAPI analytics API guide](docs/analytics_api.md) documents the modular read-only PostgreSQL API, validated filters, pagination, OpenAPI routes, safe errors, and tested scope.
 
+The [Django REST Framework ticket API guide](docs/django_ticket_api.md) documents the separate operational ticket/detail/history service, unmanaged shared-schema mappings, and migration ownership strategy.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -164,3 +166,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Power BI team comparison dashboard guide](docs/team_power_bi_dashboard.md)
 - [Power BI backlog and customer satisfaction guide](docs/backlog_satisfaction_power_bi.md)
 - [FastAPI analytics API guide](docs/analytics_api.md)
+- [Django REST Framework ticket API guide](docs/django_ticket_api.md)
