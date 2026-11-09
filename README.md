@@ -129,6 +129,8 @@ The [FastAPI analytics API guide](docs/analytics_api.md) documents the modular r
 
 The [Django REST Framework ticket API guide](docs/django_ticket_api.md) documents the separate operational ticket/detail/history service, unmanaged shared-schema mappings, and migration ownership strategy.
 
+The [Apache Airflow pipeline guide](docs/airflow_pipeline.md) documents the availability, validation, cleaning, idempotent PostgreSQL load, and post-load reconciliation DAG, including retries, timeouts, and deployment validation.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -167,3 +169,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Power BI backlog and customer satisfaction guide](docs/backlog_satisfaction_power_bi.md)
 - [FastAPI analytics API guide](docs/analytics_api.md)
 - [Django REST Framework ticket API guide](docs/django_ticket_api.md)
+- [Apache Airflow pipeline guide](docs/airflow_pipeline.md)
