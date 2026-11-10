@@ -1,0 +1,164 @@
+name: customer-support-analytics
+
+x-app-database: &app-database
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGDATABASE: customer_support_analytics
+  PGUSER: postgres
+  PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+  PGSSLMODE: disable
+  API_DB_CONNECT_TIMEOUT: "5"
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: docker/airflow/Dockerfile
+  environment: &airflow-environment
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:${POSTGRES_PASSWORD}@postgres:5432/airflow
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    AIRFLOW_PROJECT_ROOT: /opt/airflow/project
+    AIRFLOW_PIPELINE_REPORT_DIR: /opt/airflow/project/reports/airflow
+    PGHOST: postgres
+    PGPORT: "5432"
+    PGDATABASE: customer_support_analytics
+    PGUSER: postgres
+    PGPASSWORD: ${POSTGRES_PASSWORD}
+    PGSSLMODE: disable
+  user: "${AIRFLOW_UID:-50000}:0"
+  volumes:
+    - .:/opt/airflow/project
+    - airflow_logs:/opt/airflow/logs
+    - pipeline_processed:/opt/airflow/project/data/processed
+    - pipeline_reports:/opt/airflow/project/reports
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d customer_support_analytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: docker/fastapi/Dockerfile
+    environment:
+      <<: *app-database
+      API_TITLE: Customer Support Analytics API
+      API_VERSION: 1.0.0
+    ports:
+      - "${FASTAPI_PORT:-8000}:8000"
+    volumes:
+      - pipeline_processed:/app/data/processed
+      - pipeline_reports:/app/reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  django:
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    environment:
+      <<: *app-database
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in .env.docker}
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,django
+    ports:
+      - "${DJANGO_PORT:-8001}:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/v1/tickets/?limit=1', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - >-
+        airflow db migrate &&
+        (airflow users create
+        --username "$${AIRFLOW_ADMIN_USERNAME}"
+        --password "$${AIRFLOW_ADMIN_PASSWORD}"
+        --firstname Portfolio --lastname Admin --role Admin
+        --email "$${AIRFLOW_ADMIN_EMAIL}" || airflow users list)
+    environment:
+      <<: *airflow-environment
+      AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME:-admin}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:?Set AIRFLOW_ADMIN_PASSWORD in .env.docker}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL:-admin@example.invalid}
+    restart: "no"
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "${AIRFLOW_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8080/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8974/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  airflow_logs:
+  pipeline_processed:
+  pipeline_reports:

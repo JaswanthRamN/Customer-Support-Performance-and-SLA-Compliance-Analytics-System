@@ -131,6 +131,8 @@ The [Django REST Framework ticket API guide](docs/django_ticket_api.md) document
 
 The [Apache Airflow pipeline guide](docs/airflow_pipeline.md) documents the availability, validation, cleaning, idempotent PostgreSQL load, and post-load reconciliation DAG, including retries, timeouts, and deployment validation.
 
+The [Docker Compose guide](docs/docker.md) documents containerized PostgreSQL, FastAPI, Django REST Framework, and Airflow services, including health checks, persistent storage, logs, shutdown, and safe reset procedures.
+
 ## Load PostgreSQL and run SQL analysis
 
 See the [PostgreSQL guide](docs/postgres.md) for table relationships, connection variables, dependency order, validation, reload behavior, and the six analysis queries. With cleaned CSVs available, local preflight runs without a server:
@@ -170,3 +172,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [FastAPI analytics API guide](docs/analytics_api.md)
 - [Django REST Framework ticket API guide](docs/django_ticket_api.md)
 - [Apache Airflow pipeline guide](docs/airflow_pipeline.md)
+- [Docker and Docker Compose guide](docs/docker.md)
