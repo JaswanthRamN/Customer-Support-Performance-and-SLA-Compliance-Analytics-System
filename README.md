@@ -53,9 +53,9 @@ README.md
 
 The empty folders contain `.gitkeep` files so the structure can be tracked by Git.
 
-## Current stage: PostgreSQL reporting layer
+## Current stage: end-to-end portfolio implementation
 
-The business documentation, validated 10,000-ticket synthetic dataset, Pandas cleaning pipeline, EDA, PostgreSQL schema, loader, analysis queries, reporting views, and Python reconciliation baseline are ready. The loader has passed local CSV preflight and automated tests. A live database import and SQL-to-Python comparison await a configured PostgreSQL instance. No Power BI dashboard has been built yet. SLA targets are illustrative elapsed-calendar-time assumptions for this fictional support operation, not universal standards.
+The business documentation, validated 10,000-ticket synthetic dataset, Pandas cleaning pipeline, EDA, PostgreSQL layer, SQL metrics, both APIs, Airflow DAG, Docker Compose stack, and Power BI source assets are ready. Local validation and automated tests pass. Live PostgreSQL, container, Airflow, and Power BI Desktop acceptance checks still require those external runtimes. No Power BI dashboard or PBIX file has been built. SLA targets are illustrative elapsed-calendar-time assumptions for this fictional support operation, not universal standards. See the [dated end-to-end audit](docs/end_to_end_audit.md) for passed, not-run, and limitation details.
 
 ## Local Python setup
 
@@ -173,3 +173,4 @@ Use synthetic records without names, email addresses, ticket text, or other pers
 - [Django REST Framework ticket API guide](docs/django_ticket_api.md)
 - [Apache Airflow pipeline guide](docs/airflow_pipeline.md)
 - [Docker and Docker Compose guide](docs/docker.md)
+- [End-to-end audit](docs/end_to_end_audit.md)
