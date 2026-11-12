@@ -150,6 +150,7 @@ class APITests(unittest.TestCase):
         settings = Settings.from_environment(env)
         self.assertNotIn("secret", repr(settings))
         self.assertEqual(settings.db_port, 5432)
+        self.assertEqual(settings.connection_kwargs()["options"], "-c timezone=UTC")
 
 
 if __name__ == "__main__":

@@ -50,6 +50,9 @@ class Settings(BaseModel):
             "user": self.db_user,
             "sslmode": self.db_sslmode,
             "connect_timeout": self.db_connect_timeout,
+            # Date filters cast TIMESTAMPTZ values to calendar dates. Pinning the
+            # session prevents server-local timezone settings from changing API results.
+            "options": "-c timezone=UTC",
         }
         if self.db_password:
             values["password"] = self.db_password
