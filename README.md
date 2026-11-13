@@ -172,6 +172,9 @@ See [limitations and responsible interpretation](docs/limitations.md) before pre
 
 ## Documentation
 
+- [Final Business Analyst report](reports/final_business_analyst_report.md)
+- [Interview presentation outline](docs/interview_presentation_outline.md)
+- [Final completion checklist](docs/final_completion_checklist.md)
 - [Setup](docs/setup.md)
 - [Testing and validation](docs/testing.md)
 - [APIs](docs/api.md)
